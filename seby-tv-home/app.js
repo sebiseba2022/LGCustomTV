@@ -1440,6 +1440,26 @@
       openClassicModal();
       return;
     }
+    if (keyName === "volup") {
+      callLunaService("luna://com.webos.audio", "volumeUp", {});
+      showToast("Volum +");
+      return;
+    }
+    if (keyName === "voldown") {
+      callLunaService("luna://com.webos.audio", "volumeDown", {});
+      showToast("Volum -");
+      return;
+    }
+    if (keyName === "mute") {
+      callLunaService("luna://com.webos.audio", "getVolume", {}, function (res) {
+        var nextMute = !(res && res.muted);
+        callLunaService("luna://com.webos.audio", "setMuted", { muted: nextMute });
+        showToast(nextMute ? "Mute: ON" : "Mute: OFF");
+      }, function () {
+        callLunaService("luna://com.webos.audio", "setMuted", { muted: true });
+      });
+      return;
+    }
     if (keyName === "power") {
       showToast("Oprire TV...");
       callLunaService("luna://com.webos.service.tvpower", "power/turnOff", {}, function () {}, function () {

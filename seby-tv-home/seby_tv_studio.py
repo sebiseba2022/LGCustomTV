@@ -316,8 +316,7 @@ async def _send_ssap_command_async(tv_ip: str, btn: str, cards: list):
 
             await ws.send(json.dumps({"type": "register", "id": "reg_1", "payload": reg_payload}))
 
-            # Wait for registered response (if prompt shown on TV, wait up to 15s for user to click OK)
-            for _ in range(2):
+            for _ in range(3):
                 raw = await asyncio.wait_for(ws.recv(), timeout=15.0)
                 resp = json.loads(raw)
                 if resp.get("type") == "registered":
@@ -328,16 +327,7 @@ async def _send_ssap_command_async(tv_ip: str, btn: str, cards: list):
                         save_config(cfg)
                     break
 
-            # Execute command via SSAP
-            if btn == "home":
-                await ws.send(json.dumps({
-                    "type": "request", "id": "cmd_1",
-                    "uri": "ssap://system.launcher/launch",
-                    "payload": {"id": "com.seby.customhome"}
-                }))
-                await asyncio.wait_for(ws.recv(), timeout=3.0)
-                return "Deschis Seby TV Home (peste HDMI / TV)"
-
+            # Direct SSAP System URIs
             if btn == "power":
                 await ws.send(json.dumps({"type": "request", "id": "cmd_1", "uri": "ssap://system/turnOff", "payload": {}}))
                 await asyncio.wait_for(ws.recv(), timeout=2.0)
@@ -375,7 +365,17 @@ async def _send_ssap_command_async(tv_ip: str, btn: str, cards: list):
                 await asyncio.wait_for(ws.recv(), timeout=2.0)
                 return "Canal -"
 
-            # For hardware remote keys (UP, DOWN, LEFT, RIGHT, ENTER, BACK, numbers, etc.)
+            if btn == "play":
+                await ws.send(json.dumps({"type": "request", "id": "cmd_1", "uri": "ssap://media.controls/play", "payload": {}}))
+                await asyncio.wait_for(ws.recv(), timeout=2.0)
+                return "Play"
+
+            if btn == "pause":
+                await ws.send(json.dumps({"type": "request", "id": "cmd_1", "uri": "ssap://media.controls/pause", "payload": {}}))
+                await asyncio.wait_for(ws.recv(), timeout=2.0)
+                return "Pause"
+
+            # Send ANY hardware remote button via getPointerInputSocket (UP, DOWN, LEFT, RIGHT, ENTER, BACK, 0-9, RED, GREEN, YELLOW, BLUE, GUIDE, etc.)
             hw_name = SSAP_BUTTON_MAP.get(btn)
             if hw_name:
                 await ws.send(json.dumps({
@@ -710,8 +710,9 @@ class StudioRequestHandler(BaseHTTPRequestHandler):
             if ssh_cmd:
                 threading.Thread(target=run_ssh_command_on_tv, args=(tv_ip, tv_pass, ssh_cmd), daemon=True).start()
 
-            # 4. Also dispatch through official LG SSAP WebSocket (port 3000) for Channel Up/Down & hardware keys
-            if HAS_WEBSOCKETS and WS_LOOP and btn in ("chup", "chdown", "power", "home", "up", "down", "left", "right", "ok", "back"):
+            # 3. Dispatch ALL remote buttons through official LG SSAP WebSocket (port 3000)
+            #    so EVERY button works everywhere on the TV (even inside YouTube, Netflix, Live TV, HDMI 1/2!)
+            if HAS_WEBSOCKETS and WS_LOOP and btn not in ("home", "settings", "netflix", "prime", "movies", "input", "stb"):
                 asyncio.run_coroutine_threadsafe(_send_ssap_command_async(tv_ip, btn, cards), WS_LOOP)
 
             self._send_json({"ok": True, "message": f"Comandă executată pe TV: {btn}"})

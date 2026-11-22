@@ -61,17 +61,10 @@ async def _ws_cast_handler(websocket):
     global LATEST_BROWSER_FRAME, LATEST_BROWSER_FRAME_TIME
     WS_VIEWERS.add(websocket)
     try:
-        # Send latest frame immediately upon connect if available
-        if LATEST_BROWSER_FRAME:
-            try:
-                await websocket.send(LATEST_BROWSER_FRAME)
-            except Exception:
-                pass
         async for message in websocket:
             if isinstance(message, (bytes, bytearray)):
                 LATEST_BROWSER_FRAME = bytes(message)
                 LATEST_BROWSER_FRAME_TIME = time.time()
-                # Broadcast binary JPEG directly to all connected TV viewers
                 dead = []
                 for viewer in list(WS_VIEWERS):
                     if viewer is not websocket:
@@ -79,6 +72,17 @@ async def _ws_cast_handler(websocket):
                             await viewer.send(LATEST_BROWSER_FRAME)
                         except Exception:
                             dead.append(viewer)
+                for d in dead:
+                    WS_VIEWERS.discard(d)
+            elif isinstance(message, str):
+                # Relay WebRTC 60FPS Signaling JSON messages (offer, answer, ice_candidate, viewer_ready)
+                dead = []
+                for peer in list(WS_VIEWERS):
+                    if peer is not websocket:
+                        try:
+                            await peer.send(message)
+                        except Exception:
+                            dead.append(peer)
                 for d in dead:
                     WS_VIEWERS.discard(d)
     except Exception:

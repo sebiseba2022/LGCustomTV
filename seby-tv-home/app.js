@@ -201,6 +201,7 @@
   var screenMirrorTimer = null;
   var castWebSocket = null;
   var castBlobUrl = null;
+  var rtcPeer = null;
   var activeMirrorMonitor = 1;
   var lastEventId = 0;
   var lastConfigHash = "";
@@ -530,8 +531,8 @@
     if (mediaType === "screen_mirror") {
       activeMirrorMonitor = (monitorIdx !== undefined && monitorIdx !== null) ? monitorIdx : 1;
       imgEl.classList.remove("hidden");
-      showToast("Turbo Cast Ecran PC Live activ!");
-      startTurboWebSocketMirror(imgEl);
+      showToast("Conectare 60 FPS Hardware Stream...");
+      startTurboWebSocketMirror(imgEl, videoEl);
       return;
     }
 
@@ -557,7 +558,7 @@
     }
   }
 
-  function startTurboWebSocketMirror(imgEl) {
+  function startTurboWebSocketMirror(imgEl, videoEl) {
     closeCastWebSocket();
     var ip = (appConfig && appConfig.pc_ip) ? appConfig.pc_ip : "192.168.1.247";
     var port = ((appConfig && appConfig.pc_port) ? parseInt(appConfig.pc_port, 10) : 8765) + 1;
@@ -566,14 +567,43 @@
     }
     var wsUrl = "ws://" + ip + ":" + port;
     var wsReceivedFrames = false;
+    var webrtcActive = false;
 
     if (typeof window.WebSocket !== "undefined") {
       try {
         castWebSocket = new window.WebSocket(wsUrl);
         castWebSocket.binaryType = "blob";
 
+        castWebSocket.onopen = function () {
+          // Announce to PC Studio that TV Receiver is ready for 60 FPS WebRTC Offer
+          try {
+            castWebSocket.send(JSON.stringify({ type: "webrtc_viewer_ready" }));
+          } catch (e) {}
+        };
+
         castWebSocket.onmessage = function (evt) {
           if (!isCastOpen || !evt.data) return;
+
+          // 1. Handle WebRTC 60 FPS Hardware Video Signaling (JSON string)
+          if (typeof evt.data === "string") {
+            try {
+              var sig = JSON.parse(evt.data);
+              handleWebRTCSignalingOnTv(sig, videoEl, imgEl, function () {
+                webrtcActive = true;
+                wsReceivedFrames = true;
+                if (screenMirrorTimer) {
+                  clearTimeout(screenMirrorTimer);
+                  screenMirrorTimer = null;
+                }
+              });
+            } catch (e) {}
+            return;
+          }
+
+          // 2. If WebRTC is already playing 60FPS hardware video, ignore fallback JPEG blobs
+          if (webrtcActive) return;
+
+          // 3. Fallback Binary JPEG Stream
           wsReceivedFrames = true;
           if (screenMirrorTimer) {
             clearTimeout(screenMirrorTimer);
@@ -596,7 +626,7 @@
         };
 
         castWebSocket.onclose = function () {
-          if (isCastOpen && !screenMirrorTimer) {
+          if (isCastOpen && !screenMirrorTimer && !webrtcActive) {
             pumpScreenMirrorFrame(imgEl);
           }
         };
@@ -605,15 +635,95 @@
       }
     }
 
-    // Fallback check after 600ms if WebSocket hasn't received binary frames yet
     screenMirrorTimer = setTimeout(function () {
-      if (!wsReceivedFrames && isCastOpen) {
+      if (!wsReceivedFrames && !webrtcActive && isCastOpen) {
         pumpScreenMirrorFrame(imgEl);
       }
-    }, 600);
+    }, 900);
+  }
+
+  function handleWebRTCSignalingOnTv(sig, videoEl, imgEl, onStreamStarted) {
+    var RTCPeer = window.RTCPeerConnection || window.webkitRTCPeerConnection;
+    var RTCSession = window.RTCSessionDescription || window.webkitRTCSessionDescription;
+    var RTCIce = window.RTCIceCandidate || window.webkitRTCIceCandidate;
+    if (!RTCPeer) return;
+
+    if (sig.type === "webrtc_offer" && sig.sdp) {
+      if (rtcPeer) {
+        try { rtcPeer.close(); } catch (e) {}
+      }
+      rtcPeer = new RTCPeer({ iceServers: [] });
+
+      rtcPeer.onicecandidate = function (event) {
+        if (event.candidate && castWebSocket && castWebSocket.readyState === 1) {
+          castWebSocket.send(JSON.stringify({
+            type: "webrtc_ice_viewer",
+            candidate: event.candidate
+          }));
+        }
+      };
+
+      var attachStream = function (stream) {
+        if (!videoEl) return;
+        imgEl.classList.add("hidden");
+        videoEl.classList.remove("hidden");
+        videoEl.muted = false;
+        videoEl.playsInline = true;
+        try {
+          videoEl.srcObject = stream;
+        } catch (e) {
+          if (window.URL && window.URL.createObjectURL) {
+            videoEl.src = window.URL.createObjectURL(stream);
+          }
+        }
+        var p = videoEl.play();
+        if (p && p.catch) {
+          p.catch(function () {
+            videoEl.muted = true;
+            videoEl.play();
+          });
+        }
+        if (onStreamStarted) onStreamStarted();
+        showToast("60 FPS Hardware WebRTC Activ!");
+      };
+
+      rtcPeer.ontrack = function (event) {
+        if (event.streams && event.streams[0]) {
+          attachStream(event.streams[0]);
+        }
+      };
+      rtcPeer.onaddstream = function (event) {
+        if (event.stream) {
+          attachStream(event.stream);
+        }
+      };
+
+      var desc = RTCSession ? new RTCSession(sig.sdp) : sig.sdp;
+      rtcPeer.setRemoteDescription(desc, function () {
+        rtcPeer.createAnswer(function (answer) {
+          rtcPeer.setLocalDescription(answer, function () {
+            if (castWebSocket && castWebSocket.readyState === 1) {
+              castWebSocket.send(JSON.stringify({
+                type: "webrtc_answer",
+                sdp: rtcPeer.localDescription || answer
+              }));
+            }
+          }, function () {});
+        }, function () {});
+      }, function () {});
+    } else if (sig.type === "webrtc_ice_sender" && sig.candidate && rtcPeer) {
+      try {
+        var cand = RTCIce ? new RTCIce(sig.candidate) : sig.candidate;
+        rtcPeer.addIceCandidate(cand, function () {}, function () {});
+      } catch (e) {}
+    }
   }
 
   function closeCastWebSocket() {
+    if (rtcPeer) {
+      try { rtcPeer.close(); } catch (e) {}
+      rtcPeer = null;
+    }
     if (castWebSocket) {
       try { castWebSocket.close(); } catch (e) {}
       castWebSocket = null;

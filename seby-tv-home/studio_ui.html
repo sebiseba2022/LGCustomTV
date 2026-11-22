@@ -466,11 +466,11 @@
             </p>
             <div style="display:flex; flex-wrap:wrap; gap:0.65rem; align-items:center;">
               <button class="btn btn-primary" onclick="startInteractiveScreenPickerCast()">
-                🖥️ Alege Ce Ecran / Fereastră să Trimiți pe TV (Turbo 25-30 FPS)
+                🖥️ Alege Ce Ecran / Fereastră să Trimiți pe TV (60 FPS Hardware)
               </button>
               <select id="castQualitySelect" style="padding:0.5rem 0.7rem; border-radius:var(--radius-md); border:1px solid var(--color-border-strong); font-weight:600; font-size:0.84rem;">
-                <option value="turbo" selected>⚡ Mod Turbo Fluid (720p @ 28 FPS)</option>
-                <option value="hd">🎬 Mod Claritate HD (1080p @ 18 FPS)</option>
+                <option value="ultra60" selected>🚀 Ultra 60 FPS (1080p Hardware WebRTC + Audio)</option>
+                <option value="turbo">⚡ Turbo 60 FPS (720p Ultra-Low Latency)</option>
               </select>
               <button class="btn btn-danger" onclick="stopAllCast()">⏹️ Oprește Cast</button>
               <span id="pickerCastStatus" style="font-size:0.82rem; font-weight:600; color:var(--color-brand-teal);"></span>
@@ -842,6 +842,8 @@
     var webrtcStream = null;
     var webrtcPushTimer = null;
     var studioCastWs = null;
+    var studioRtcPeer = null;
+    var studioWebRtcConnected = false;
     var wsBackpressureBusy = false;
 
     // Register Service Worker for PC & Mobile PWA installation
@@ -1194,53 +1196,119 @@
     }
 
     /* ----------------------------------------------------------------------
-       Interactive Screen / Monitor / Window Picker Cast (Turbo WebSocket 25-30 FPS!)
-       Streams binary JPEG frames directly over persistent WebSocket (port 8766)
-       with backpressure control so it runs smoothly even when tab is in background!
+       60 FPS Hardware WebRTC Direct Screen Cast + Turbo WebSocket Fallback
+       Uses GPU H.264 / VP8 hardware encoding directly from PC to LG TV <video>
+       at 60 FPS with system audio and zero background-tab throttling!
        ---------------------------------------------------------------------- */
+    function startWebRtcSenderOffer() {
+      if (!webrtcStream || !studioCastWs || studioCastWs.readyState !== 1) return;
+      if (studioRtcPeer) {
+        try { studioRtcPeer.close(); } catch (e) {}
+      }
+      studioWebRtcConnected = false;
+      studioRtcPeer = new RTCPeerConnection({ iceServers: [] });
+
+      webrtcStream.getTracks().forEach(function (track) {
+        studioRtcPeer.addTrack(track, webrtcStream);
+      });
+
+      studioRtcPeer.onicecandidate = function (ev) {
+        if (ev.candidate && studioCastWs && studioCastWs.readyState === 1) {
+          studioCastWs.send(JSON.stringify({
+            type: "webrtc_ice_sender",
+            candidate: ev.candidate
+          }));
+        }
+      };
+
+      studioRtcPeer.onconnectionstatechange = function () {
+        if (studioRtcPeer.connectionState === "connected") {
+          studioWebRtcConnected = true;
+          document.getElementById("pickerCastStatus").textContent = "🚀 60 FPS Hardware WebRTC Conectat Direct la TV!";
+          logMsg("Conexiune Directă 60 FPS Hardware WebRTC stabilită cu televizorul LG!");
+        }
+      };
+
+      studioRtcPeer.createOffer()
+        .then(function (offer) {
+          return studioRtcPeer.setLocalDescription(offer);
+        })
+        .then(function () {
+          if (studioCastWs && studioCastWs.readyState === 1) {
+            studioCastWs.send(JSON.stringify({
+              type: "webrtc_offer",
+              sdp: studioRtcPeer.localDescription
+            }));
+          }
+        })
+        .catch(function (e) {
+          logMsg("WebRTC Offer fallback: " + e.message);
+        });
+    }
+
     function startInteractiveScreenPickerCast() {
       if (!navigator.mediaDevices || !navigator.mediaDevices.getDisplayMedia) {
         alert("Browserul curent nu suportă selectorul de ecran sau folosește Opțiunea 2 (Server Monitor Cast).");
         return;
       }
-      var qMode = document.getElementById("castQualitySelect") ? document.getElementById("castQualitySelect").value : "turbo";
-      var capW = qMode === "hd" ? 1600 : 1280;
-      var capH = qMode === "hd" ? 900 : 720;
-      var capFps = qMode === "hd" ? 20 : 28;
-      var jpgQual = qMode === "hd" ? 0.68 : 0.56;
-      var intervalMs = Math.round(1000 / capFps);
+      var qMode = document.getElementById("castQualitySelect") ? document.getElementById("castQualitySelect").value : "ultra60";
+      var capW = qMode === "ultra60" ? 1920 : 1280;
+      var capH = qMode === "ultra60" ? 1080 : 720;
 
       navigator.mediaDevices.getDisplayMedia({
-        video: { width: { ideal: capW }, height: { ideal: capH }, frameRate: { ideal: capFps } },
-        audio: false
+        video: {
+          width: { ideal: capW, max: 1920 },
+          height: { ideal: capH, max: 1080 },
+          frameRate: { ideal: 60, max: 60 }
+        },
+        audio: true
       }).then(function (stream) {
         if (webrtcStream) {
           webrtcStream.getTracks().forEach(function (t) { t.stop(); });
         }
         webrtcStream = stream;
+        studioWebRtcConnected = false;
+
         var video = document.getElementById("webrtcCaptureVideo");
         var canvas = document.getElementById("webrtcCaptureCanvas");
-        canvas.width = capW;
-        canvas.height = capH;
+        canvas.width = 1280;
+        canvas.height = 720;
         var ctx = canvas.getContext("2d", { alpha: false });
         video.srcObject = stream;
         video.play();
 
-        // Open Persistent Turbo WebSocket to Server (port 8766)
         if (studioCastWs) {
           try { studioCastWs.close(); } catch (e) {}
         }
         var wsHost = window.location.hostname || "localhost";
-        var wsPort = 8766;
-        try {
-          studioCastWs = new WebSocket("ws://" + wsHost + ":" + wsPort);
-          studioCastWs.binaryType = "arraybuffer";
-        } catch (e) {
-          studioCastWs = null;
-        }
+        studioCastWs = new WebSocket("ws://" + wsHost + ":8766");
+        studioCastWs.binaryType = "arraybuffer";
 
-        document.getElementById("pickerCastStatus").textContent = "🟢 Turbo Cast Activ (" + capFps + " FPS)!";
-        logMsg("Turbo WebSocket Cast pornit (" + capW + "x" + capH + " @ " + capFps + " FPS)!");
+        studioCastWs.onopen = function () {
+          // Trigger WebRTC offer as soon as TV receiver is open
+          setTimeout(startWebRtcSenderOffer, 800);
+        };
+
+        studioCastWs.onmessage = function (evt) {
+          if (typeof evt.data !== "string") return;
+          try {
+            var sig = JSON.parse(evt.data);
+            if (sig.type === "webrtc_viewer_ready") {
+              startWebRtcSenderOffer();
+            } else if (sig.type === "webrtc_answer" && sig.sdp && studioRtcPeer) {
+              studioRtcPeer.setRemoteDescription(new RTCSessionDescription(sig.sdp)).then(function () {
+                studioWebRtcConnected = true;
+                document.getElementById("pickerCastStatus").textContent = "🚀 60 FPS Hardware WebRTC Activ pe TV!";
+                logMsg("TV-ul a confirmat stream-ul video 60 FPS Hardware WebRTC!");
+              }).catch(function () {});
+            } else if (sig.type === "webrtc_ice_viewer" && sig.candidate && studioRtcPeer) {
+              studioRtcPeer.addIceCandidate(new RTCIceCandidate(sig.candidate)).catch(function () {});
+            }
+          } catch (e) {}
+        };
+
+        document.getElementById("pickerCastStatus").textContent = "🟢 Inițializare Stream 60 FPS către TV...";
+        logMsg("Pornire Stream 60 FPS (" + capW + "x" + capH + " @ 60fps)...");
 
         openCustomHomeOnTv();
         setTimeout(function () {
@@ -1251,11 +1319,12 @@
               type: "cast_media",
               mediaType: "screen_mirror",
               monitorIndex: "browser",
-              title: "Ecran Partajat Live (Turbo Cast)"
+              title: "Ecran PC Live (60 FPS Hardware)"
             })
           });
-        }, 450);
+        }, 400);
 
+        // Fallback binary frame pump ONLY while WebRTC handshake is negotiating
         if (webrtcPushTimer) clearInterval(webrtcPushTimer);
         wsBackpressureBusy = false;
 
@@ -1265,28 +1334,24 @@
             document.getElementById("pickerCastStatus").textContent = "";
             return;
           }
+          // Once 60FPS WebRTC hardware video is connected, stop CPU canvas encoding completely!
+          if (studioWebRtcConnected) return;
+
           if (video.readyState >= 2 && !wsBackpressureBusy) {
-            // Skip frame if socket buffer has > 250KB queued (prevents lag buildup)
             if (studioCastWs && studioCastWs.readyState === 1 && studioCastWs.bufferedAmount > 256000) {
               return;
             }
             wsBackpressureBusy = true;
-            ctx.drawImage(video, 0, 0, capW, capH);
+            ctx.drawImage(video, 0, 0, 1280, 720);
             canvas.toBlob(function (blob) {
               wsBackpressureBusy = false;
-              if (!blob) return;
+              if (!blob || studioWebRtcConnected) return;
               if (studioCastWs && studioCastWs.readyState === 1) {
                 studioCastWs.send(blob);
-              } else {
-                fetch("/api/cast/push-frame", {
-                  method: "POST",
-                  headers: { "Content-Type": "image/jpeg" },
-                  body: blob
-                }).catch(function () {});
               }
-            }, "image/jpeg", jpgQual);
+            }, "image/jpeg", 0.56);
           }
-        }, intervalMs);
+        }, 35);
 
         stream.getVideoTracks()[0].addEventListener("ended", function () {
           stopAllCast();
@@ -1333,6 +1398,11 @@
         clearInterval(webrtcPushTimer);
         webrtcPushTimer = null;
       }
+      if (studioRtcPeer) {
+        try { studioRtcPeer.close(); } catch (e) {}
+        studioRtcPeer = null;
+      }
+      studioWebRtcConnected = false;
       if (studioCastWs) {
         try { studioCastWs.close(); } catch (e) {}
         studioCastWs = null;

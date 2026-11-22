@@ -333,13 +333,254 @@
       white-space: pre-wrap;
     }
 
-    /* Remote D-Pad */
-    .remote-dpad {
+    /* Remote D-Pad & Photorealistic LG Magic Remote AN-MR19BA */
+    .lg-remote-wrapper {
+      display: flex;
+      justify-content: center;
+      padding: 1rem 0 1.5rem 0;
+    }
+    .lg-magic-remote {
+      width: 286px;
+      background: linear-gradient(180deg, #1b1e24 0%, #101216 45%, #0a0b0e 100%);
+      border-radius: 135px 135px 72px 72px / 95px 95px 150px 150px;
+      padding: 28px 26px 36px 26px;
+      box-shadow:
+        0 26px 55px rgba(11, 37, 69, 0.35),
+        inset 0 2px 4px rgba(255, 255, 255, 0.22),
+        inset 0 -8px 18px rgba(0, 0, 0, 0.85),
+        inset 4px 0 10px rgba(255, 255, 255, 0.06),
+        inset -4px 0 10px rgba(255, 255, 255, 0.06);
+      border: 2px solid #282c34;
+      color: #e2e8f0;
+      user-select: none;
+      position: relative;
+    }
+    .rm-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .rm-btn {
+      background: linear-gradient(180deg, #2b303a 0%, #1b1e24 100%);
+      border: 1px solid #3c424f;
+      color: #f8fafc;
+      border-radius: 999px;
+      font-family: inherit;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.6), inset 0 1px 1px rgba(255,255,255,0.15);
+      transition: transform 0.1s ease, filter 0.12s ease;
+    }
+    .rm-btn:hover { filter: brightness(1.22); }
+    .rm-btn:active { transform: scale(0.93); filter: brightness(0.9); }
+
+    /* Power & STB Top Row */
+    .rm-power {
+      width: 46px; height: 46px;
+      background: radial-gradient(circle at 35% 30%, #ef4444, #b91c1c);
+      border-color: #f87171;
+      color: #fff;
+      font-size: 18px;
+      box-shadow: 0 4px 12px rgba(239, 68, 68, 0.45), inset 0 1px 2px rgba(255,255,255,0.35);
+    }
+    .rm-stb {
+      width: 44px; height: 34px;
+      font-size: 11px;
+    }
+
+    /* Numeric Keypad */
+    .rm-numpad {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 0.55rem;
-      max-width: 280px;
-      margin: 0 auto 1.25rem auto;
+      gap: 9px 10px;
+      margin-bottom: 4px;
+    }
+    .rm-num {
+      height: 35px;
+      border-radius: 18px;
+      font-size: 16px;
+      font-weight: 700;
+    }
+    .rm-sub-labels {
+      display: flex;
+      justify-content: center;
+      gap: 18px;
+      font-size: 8.5px;
+      font-weight: 800;
+      letter-spacing: 0.4px;
+      color: #94a3b8;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+    }
+
+    /* Volume / Mute / Voice / Channel Rocker Section */
+    .rm-mid-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .rm-rocker {
+      background: linear-gradient(180deg, #252932 0%, #171a20 100%);
+      border: 1px solid #383e4c;
+      border-radius: 26px;
+      padding: 4px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      height: 116px;
+      box-shadow: inset 0 1px 2px rgba(255,255,255,0.1), 0 4px 8px rgba(0,0,0,0.5);
+    }
+    .rm-rocker-btn {
+      width: 100%;
+      height: 38px;
+      background: transparent;
+      border: none;
+      color: #f8fafc;
+      font-size: 20px;
+      font-weight: 800;
+      cursor: pointer;
+      border-radius: 20px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .rm-rocker-btn:hover { background: rgba(255,255,255,0.08); }
+    .rm-rocker-btn:active { background: rgba(255,255,255,0.16); }
+    .rm-rocker-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: #cbd5e1;
+      pointer-events: none;
+    }
+    .rm-center-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+    .rm-circle-btn {
+      width: 44px; height: 44px;
+      border-radius: 50%;
+    }
+
+    /* D-Pad Ring + Scroll Wheel OK */
+    .rm-dpad-outer {
+      width: 168px;
+      height: 168px;
+      margin: 6px auto 14px auto;
+      border-radius: 50%;
+      background: radial-gradient(circle at 50% 35%, #2a2f3a 0%, #14171d 75%, #0c0e12 100%);
+      border: 2px solid #383f4d;
+      box-shadow: 0 10px 24px rgba(0,0,0,0.75), inset 0 2px 4px rgba(255,255,255,0.15);
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .rm-dpad-dir {
+      position: absolute;
+      background: transparent;
+      border: none;
+      color: #cbd5e1;
+      font-size: 16px;
+      cursor: pointer;
+      width: 48px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      transition: background 0.12s ease, color 0.12s ease;
+    }
+    .rm-dpad-dir:hover { background: rgba(255,255,255,0.1); color: #fff; }
+    .rm-dpad-dir:active { background: rgba(20, 184, 166, 0.35); }
+    .rm-up { top: 4px; left: 50%; transform: translateX(-50%); }
+    .rm-down { bottom: 4px; left: 50%; transform: translateX(-50%); }
+    .rm-left { left: 4px; top: 50%; transform: translateY(-50%); }
+    .rm-right { right: 4px; top: 50%; transform: translateY(-50%); }
+
+    .rm-wheel-ok {
+      width: 66px;
+      height: 66px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #1f242d 0%, #0e1015 100%);
+      border: 2px solid #475569;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: inset 0 2px 5px rgba(0,0,0,0.8);
+    }
+    .rm-wheel-roller {
+      width: 22px;
+      height: 38px;
+      border-radius: 8px;
+      background: repeating-linear-gradient(
+        0deg,
+        #1e293b 0px,
+        #1e293b 3px,
+        #475569 3px,
+        #475569 5px
+      );
+      border: 1px solid #64748b;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.8);
+    }
+    .rm-wheel-ok:hover .rm-wheel-roller { border-color: #38bdf8; }
+
+    /* Brand Shortcut Buttons (Netflix / Prime) */
+    .rm-brand-pill {
+      height: 32px;
+      padding: 0 12px;
+      border-radius: 16px;
+      background: #f8fafc;
+      color: #0f172a;
+      font-weight: 900;
+      font-size: 11px;
+      letter-spacing: -0.3px;
+      border: 1px solid #cbd5e1;
+    }
+    .rm-netflix { color: #dc2626; }
+    .rm-prime { color: #0284c7; }
+
+    /* 4 Color Dots Row */
+    .rm-colors-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin: 12px 0;
+    }
+    .rm-color-btn {
+      height: 24px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.25);
+      cursor: pointer;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+    }
+    .rm-c-red { background: linear-gradient(180deg, #ef4444, #b91c1c); }
+    .rm-c-green { background: linear-gradient(180deg, #22c55e, #15803d); }
+    .rm-c-yellow { background: linear-gradient(180deg, #eab308, #a16207); }
+    .rm-c-blue { background: linear-gradient(180deg, #3b82f6, #1d4ed8); }
+
+    /* Bottom Play / Pause Row & LG Logo */
+    .rm-media-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+    .rm-lg-logo {
+      text-align: center;
+      font-weight: 800;
+      font-size: 16px;
+      letter-spacing: 1px;
+      color: #cbd5e1;
+      opacity: 0.85;
     }
 
     /* Mobile Bottom Dock (ULBS Mobile Style) */
@@ -720,55 +961,160 @@
         </div>
       </section>
 
-      <!-- PANE 5: REMOTE CONTROL & DEPLOY -->
+      <!-- PANE 5: PHOTOREALISTIC LG MAGIC REMOTE AN-MR19BA & DEPLOY -->
       <section class="tab-pane" id="pane-remote">
         <div class="surface-card">
           <div class="surface-header">
             <div>
-              <h2>🎮 Telecomandă Virtuală, Notificări Live &amp; Revenire la Original</h2>
-              <p>Controlează televizorul de pe PC sau telefon și instalează/dezinstalează cu 1 click.</p>
+              <h2>🎮 Telecomanda Ta LG Magic Remote (AN-MR19BA) &amp; Control TV</h2>
+              <p>Replica 1:1 a telecomenzii tale fizice LG. Fiecare buton controlează direct televizorul și meniul Seby TV Home de pe PC sau Telefon!</p>
             </div>
           </div>
 
-          <div class="remote-dpad">
-            <div></div>
-            <button class="btn btn-navy" style="padding:0.9rem;" onclick="sendRemoteKey('up')">&uarr; SUS</button>
-            <div></div>
-            <button class="btn btn-navy" style="padding:0.9rem;" onclick="sendRemoteKey('left')">&larr; STÂNGA</button>
-            <button class="btn btn-primary" style="padding:0.9rem;" onclick="sendRemoteKey('ok')">OK</button>
-            <button class="btn btn-navy" style="padding:0.9rem;" onclick="sendRemoteKey('right')">DREAPTA &rarr;</button>
-            <div></div>
-            <button class="btn btn-navy" style="padding:0.9rem;" onclick="sendRemoteKey('down')">&darr; JOS</button>
-            <button class="btn" style="padding:0.9rem;" onclick="sendRemoteKey('back')">↩ BACK</button>
-          </div>
+          <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; align-items: start;">
+            <!-- Left: Exact LG Magic Remote Replica -->
+            <div class="lg-remote-wrapper">
+              <div class="lg-magic-remote">
+                <!-- Top Power & STB Power -->
+                <div class="rm-row">
+                  <button class="rm-btn rm-power" title="Power Off TV" onclick="pressLgRemote('power')">⏻</button>
+                  <button class="rm-btn rm-stb" title="STB Power / HDMI 2" onclick="pressLgRemote('stb')">⏻ STB</button>
+                </div>
 
-          <div class="sub-card">
-            <h3>🚀 Lansare Directă pe TV</h3>
-            <div style="display:flex; flex-wrap:wrap; gap:0.5rem;">
-              <button class="btn btn-primary" onclick="openCustomHomeOnTv()">🏠 Seby TV Home</button>
-              <button class="btn" onclick="launchAppFromPc('youtube.leanback.v4', 'YouTube')">▶️ YouTube</button>
-              <button class="btn" onclick="launchAppFromPc('netflix', 'Netflix')">🎬 Netflix</button>
-              <button class="btn" onclick="launchAppFromPc('spotify-beehive', 'Spotify')">🎵 Spotify</button>
-              <button class="btn" onclick="launchAppFromPc('com.webos.app.livetv', 'Canale TV')">📺 Canale TV</button>
-              <button class="btn" onclick="launchAppFromPc('com.webos.app.hdmi1', 'HDMI 1')">🔌 HDMI 1</button>
-              <button class="btn" onclick="launchAppFromPc('com.webos.app.hdmi2', 'HDMI 2')">🔌 HDMI 2</button>
-              <button class="btn" onclick="launchAppFromPc('com.palm.app.settings', 'Setări LG')">⚙️ Setări LG</button>
+                <!-- Number Pad 1-9, -/LIST, 0, .../AD/SAP -->
+                <div class="rm-numpad">
+                  <button class="rm-btn rm-num" onclick="pressLgRemote('num1')">1</button>
+                  <button class="rm-btn rm-num" onclick="pressLgRemote('num2')">2</button>
+                  <button class="rm-btn rm-num" onclick="pressLgRemote('num3')">3</button>
+                  <button class="rm-btn rm-num" onclick="pressLgRemote('num4')">4</button>
+                  <button class="rm-btn rm-num" onclick="pressLgRemote('num5')">5</button>
+                  <button class="rm-btn rm-num" onclick="pressLgRemote('num6')">6</button>
+                  <button class="rm-btn rm-num" onclick="pressLgRemote('num7')">7</button>
+                  <button class="rm-btn rm-num" onclick="pressLgRemote('num8')">8</button>
+                  <button class="rm-btn rm-num" onclick="pressLgRemote('num9')">9</button>
+                  <button class="rm-btn rm-num" style="font-size:11px;" title="Canale TV / List" onclick="pressLgRemote('list')">-/LIST</button>
+                  <button class="rm-btn rm-num" onclick="pressLgRemote('num0')">0</button>
+                  <button class="rm-btn rm-num" style="font-size:14px;" title="More Actions" onclick="pressLgRemote('more')">•••</button>
+                </div>
+                <div class="rm-sub-labels">
+                  <span>QUICK ACCESS</span>
+                  <span>AD/SAP</span>
+                </div>
+
+                <!-- Volume Rocker, Mute/Voice, Channel Rocker -->
+                <div class="rm-mid-grid">
+                  <!-- Volume + / - -->
+                  <div class="rm-rocker">
+                    <button class="rm-rocker-btn" title="Volum +" onclick="pressLgRemote('volup')">+</button>
+                    <span class="rm-rocker-label">🔊 VOL</span>
+                    <button class="rm-rocker-btn" title="Volum -" onclick="pressLgRemote('voldown')">−</button>
+                  </div>
+
+                  <!-- Mute & Microphone -->
+                  <div class="rm-center-col">
+                    <button class="rm-btn rm-circle-btn" title="Mute" onclick="pressLgRemote('mute')">🔇</button>
+                    <button class="rm-btn rm-circle-btn" title="Comandă Vocală / Mesaj TV" onclick="document.getElementById('toastInputMsg').focus()">🎙️</button>
+                  </div>
+
+                  <!-- Channel ^ / v -->
+                  <div class="rm-rocker">
+                    <button class="rm-rocker-btn" title="Canal +" onclick="pressLgRemote('chup')">⌃</button>
+                    <span class="rm-rocker-label">📺 CH</span>
+                    <button class="rm-rocker-btn" title="Canal -" onclick="pressLgRemote('chdown')">⌄</button>
+                  </div>
+                </div>
+
+                <!-- Home (Căsuța) & Settings (Rotița) -->
+                <div class="rm-row" style="padding: 0 8px;">
+                  <button class="rm-btn rm-circle-btn" title="Seby TV Home" onclick="pressLgRemote('home')">🏠</button>
+                  <button class="rm-btn rm-circle-btn" title="Setări LG" onclick="pressLgRemote('settings')">⚙️</button>
+                </div>
+
+                <!-- Circular D-Pad & Scroll Wheel OK -->
+                <div class="rm-dpad-outer">
+                  <button class="rm-dpad-dir rm-up" title="Sus" onclick="pressLgRemote('up')">▲</button>
+                  <button class="rm-dpad-dir rm-left" title="Stânga" onclick="pressLgRemote('left')">◀</button>
+                  <div class="rm-wheel-ok" title="OK / Click Rotiță" onclick="pressLgRemote('ok')">
+                    <div class="rm-wheel-roller"></div>
+                  </div>
+                  <button class="rm-dpad-dir rm-right" title="Dreapta" onclick="pressLgRemote('right')">▶</button>
+                  <button class="rm-dpad-dir rm-down" title="Jos" onclick="pressLgRemote('down')">▼</button>
+                </div>
+
+                <!-- Back & Guide -->
+                <div class="rm-row" style="padding: 0 6px;">
+                  <button class="rm-btn" style="width:52px; height:36px;" title="Back / Înapoi" onclick="pressLgRemote('back')">↩</button>
+                  <button class="rm-btn" style="width:56px; height:36px; font-size:10px;" title="TV Guide" onclick="pressLgRemote('guide')">GUIDE</button>
+                </div>
+
+                <!-- Netflix, Input Source, Prime Video -->
+                <div class="rm-row" style="margin-top: 8px;">
+                  <button class="rm-btn rm-brand-pill rm-netflix" onclick="pressLgRemote('netflix')">NETFLIX</button>
+                  <button class="rm-btn rm-circle-btn" style="width:40px; height:40px;" title="Intrări HDMI" onclick="pressLgRemote('input')">🔌</button>
+                  <button class="rm-btn rm-brand-pill rm-prime" onclick="pressLgRemote('prime')">prime</button>
+                </div>
+
+                <!-- 4 Colored Buttons (Red, Green, Yellow, Blue) -->
+                <div class="rm-colors-row">
+                  <button class="rm-color-btn rm-c-red" title="Roșu: Schimbă Tema" onclick="pressLgRemote('red')"></button>
+                  <button class="rm-color-btn rm-c-green" title="Verde: Aranjează Cardurile" onclick="pressLgRemote('green')"></button>
+                  <button class="rm-color-btn rm-c-yellow" title="Galben: Pornește PC Cast" onclick="pressLgRemote('yellow')"></button>
+                  <button class="rm-color-btn rm-c-blue" title="Albastru: Meniul Original LG" onclick="pressLgRemote('blue')"></button>
+                </div>
+
+                <!-- Movies/YouTube, Play, Pause -->
+                <div class="rm-media-row">
+                  <button class="rm-btn rm-brand-pill" style="color:#b91c1c;" title="YouTube / Movies" onclick="pressLgRemote('movies')">YouTube</button>
+                  <button class="rm-btn" style="height:32px;" title="Play" onclick="pressLgRemote('play')">▶</button>
+                  <button class="rm-btn" style="height:32px;" title="Pause" onclick="pressLgRemote('pause')">❚❚</button>
+                </div>
+
+                <div class="rm-lg-logo">LG</div>
+              </div>
             </div>
-          </div>
 
-          <div class="sub-card">
-            <h3>💬 Trimite Notificare Instant pe Ecranul TV-ului</h3>
-            <div style="display:flex; gap:0.65rem;">
-              <input type="text" id="toastInputMsg" placeholder="Scrie un mesaj care va apărea pe televizor..." style="flex:1; padding:0.55rem 0.8rem; border-radius:var(--radius-md); border:1px solid var(--color-border-strong);" />
-              <button class="btn btn-primary" onclick="sendToastToTv()">Trimite Mesaj</button>
-            </div>
-          </div>
+            <!-- Right: Quick Actions, Toast & Deploy -->
+            <div>
+              <div class="sub-card">
+                <h3>🎨 Funcții Speciale pe Cele 4 Butoane Colorate</h3>
+                <p style="margin-bottom:0.5rem;">Am mapat butoanele colorate de pe telecomandă la funcțiile tale custom:</p>
+                <ul style="font-size:0.85rem; color:var(--color-text-primary); list-style:none; display:flex; flex-direction:column; gap:6px;">
+                  <li>🔴 <strong>Butonul Roșu:</strong> Schimbă tema de culori a meniului TV</li>
+                  <li>🟢 <strong>Butonul Verde:</strong> Activează/Salvează modul „Aranjează Cardurile”</li>
+                  <li>🟡 <strong>Butonul Galben:</strong> Deschide direct PC Screen Cast pe televizor</li>
+                  <li>🔵 <strong>Butonul Albastru:</strong> Deschide meniul de revenire la TV-ul Original LG</li>
+                </ul>
+              </div>
 
-          <div class="sub-card" style="margin-bottom:0;">
-            <h3>⚙️ Instalare Permanentă (.IPK) &amp; Revenire la Meniul Original LG</h3>
-            <div style="display:flex; flex-wrap:wrap; gap:0.75rem;">
-              <button class="btn btn-primary" onclick="deployPermanentIpk()">🚀 Compilează &amp; Instalează (.IPK) pe TV</button>
-              <button class="btn btn-danger" onclick="uninstallFromTv()">🗑️ Dezinstalează Seby Home (100% Original LG)</button>
+              <div class="sub-card">
+                <h3>🚀 Lansare Directă Aplicații pe TV</h3>
+                <div style="display:flex; flex-wrap:wrap; gap:0.5rem;">
+                  <button class="btn btn-primary" onclick="openCustomHomeOnTv()">🏠 Seby TV Home</button>
+                  <button class="btn" onclick="launchAppFromPc('youtube.leanback.v4', 'YouTube')">▶️ YouTube</button>
+                  <button class="btn" onclick="launchAppFromPc('netflix', 'Netflix')">🎬 Netflix</button>
+                  <button class="btn" onclick="launchAppFromPc('spotify-beehive', 'Spotify')">🎵 Spotify</button>
+                  <button class="btn" onclick="launchAppFromPc('com.webos.app.livetv', 'Canale TV')">📺 Canale TV</button>
+                  <button class="btn" onclick="launchAppFromPc('com.webos.app.hdmi1', 'HDMI 1')">🔌 HDMI 1</button>
+                  <button class="btn" onclick="launchAppFromPc('com.webos.app.hdmi2', 'HDMI 2')">🔌 HDMI 2</button>
+                  <button class="btn" onclick="launchAppFromPc('com.palm.app.settings', 'Setări LG')">⚙️ Setări LG</button>
+                </div>
+              </div>
+
+              <div class="sub-card">
+                <h3>💬 Trimite Notificare Instant pe Ecranul TV-ului</h3>
+                <div style="display:flex; gap:0.65rem;">
+                  <input type="text" id="toastInputMsg" placeholder="Scrie un mesaj care va apărea pe televizor..." style="flex:1; padding:0.55rem 0.8rem; border-radius:var(--radius-md); border:1px solid var(--color-border-strong);" />
+                  <button class="btn btn-primary" onclick="sendToastToTv()">Trimite Mesaj</button>
+                </div>
+              </div>
+
+              <div class="sub-card" style="margin-bottom:0;">
+                <h3>⚙️ Instalare Permanentă (.IPK) &amp; Revenire la Meniul Original LG</h3>
+                <div style="display:flex; flex-wrap:wrap; gap:0.75rem;">
+                  <button class="btn btn-primary" onclick="deployPermanentIpk()">🚀 Compilează &amp; Instalează (.IPK) pe TV</button>
+                  <button class="btn btn-danger" onclick="uninstallFromTv()">🗑️ Dezinstalează Seby Home (100% Original LG)</button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -1550,11 +1896,20 @@
     }
 
     function sendRemoteKey(keyName) {
-      fetch("/api/tv/event", {
+      pressLgRemote(keyName);
+    }
+
+    function pressLgRemote(buttonName) {
+      fetch("/api/tv/remote-button", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ type: "remote_key", key: keyName })
-      });
+        body: JSON.stringify({ button: buttonName })
+      })
+      .then(function (r) { return r.json(); })
+      .then(function (res) {
+        if (res && res.message) logMsg(res.message);
+      })
+      .catch(function () {});
     }
 
     window.addEventListener("DOMContentLoaded", loadInitialConfig);

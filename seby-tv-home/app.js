@@ -1327,7 +1327,64 @@
   }
 
   function simulateRemoteAction(keyName) {
-    var map = { left: 37, up: 38, right: 39, down: 40, ok: 13, back: 461 };
+    var map = {
+      left: 37, up: 38, right: 39, down: 40, ok: 13, back: 461,
+      num1: 49, num2: 50, num3: 51, num4: 52, num5: 53, num6: 54, num7: 55, num8: 56, num9: 57, num0: 48
+    };
+    if (keyName === "home") {
+      focusZoneItem(1, 0);
+      showToast("Seby TV Home");
+      return;
+    }
+    if (keyName === "settings") {
+      launchWebOSAppId("com.palm.app.settings", "Setări TV LG", ["com.palm.app.settings"], 0);
+      return;
+    }
+    if (keyName === "input") {
+      launchWebOSAppId("com.webos.app.hdmi1", "HDMI 1", ["com.webos.app.hdmi1"], 0);
+      return;
+    }
+    if (keyName === "netflix") {
+      launchWebOSAppId("netflix", "Netflix", ["netflix", "com.webos.app.netflix"], 0);
+      return;
+    }
+    if (keyName === "prime") {
+      launchWebOSAppId("amazon", "Prime Video", ["amazon", "com.webos.app.amazon"], 0);
+      return;
+    }
+    if (keyName === "movies" || keyName === "youtube") {
+      launchWebOSAppId("youtube.leanback.v4", "YouTube", ["youtube.leanback.v4"], 0);
+      return;
+    }
+    if (keyName === "guide" || keyName === "list") {
+      launchWebOSAppId("com.webos.app.livetv", "Canale TV Live", ["com.webos.app.livetv"], 0);
+      return;
+    }
+    if (keyName === "play") {
+      if (isCastOpen) controlActiveCast("play");
+      else handleKeyCode(13, { preventDefault: function () {} });
+      return;
+    }
+    if (keyName === "pause") {
+      if (isCastOpen) controlActiveCast("pause");
+      return;
+    }
+    if (keyName === "red") {
+      cycleTheme();
+      return;
+    }
+    if (keyName === "green") {
+      toggleEditOrderMode();
+      return;
+    }
+    if (keyName === "yellow") {
+      startCastPlayback("screen_mirror", "", "Ecran PC Live", 1);
+      return;
+    }
+    if (keyName === "blue") {
+      openClassicModal();
+      return;
+    }
     var code = map[keyName];
     if (code) {
       handleKeyCode(code, { preventDefault: function () {} });

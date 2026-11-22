@@ -481,6 +481,45 @@ class StudioRequestHandler(BaseHTTPRequestHandler):
             self._send_json({"ok": True, "message": f"Lansat pe TV ({app_id}): {out}"})
             return
 
+        if path == "/api/tv/remote-button":
+            length = int(self.headers.get("Content-Length", "0"))
+            body = json.loads(self.rfile.read(length).decode("utf-8"))
+            btn = body.get("button", "")
+            cfg = load_config()
+            tv_ip = cfg.get("tv_ip", "192.168.1.242")
+            tv_pass = cfg.get("tv_passphrase", "1DE7AB")
+
+            # Also push to Seby TV Home web app event queue for instant UI navigation
+            push_tv_event({"type": "remote_key", "key": btn})
+
+            # Execute system-level webOS commands where applicable
+            sys_cmds = {
+                "home": '/usr/bin/luna-send-pub -n 1 luna://com.webos.applicationManager/launch \'{"id":"com.seby.customhome"}\'',
+                "settings": '/usr/bin/luna-send-pub -n 1 luna://com.webos.applicationManager/launch \'{"id":"com.palm.app.settings"}\'',
+                "netflix": '/usr/bin/luna-send-pub -n 1 luna://com.webos.applicationManager/launch \'{"id":"netflix"}\'',
+                "prime": '/usr/bin/luna-send-pub -n 1 luna://com.webos.applicationManager/launch \'{"id":"amazon"}\'',
+                "movies": '/usr/bin/luna-send-pub -n 1 luna://com.webos.applicationManager/launch \'{"id":"youtube.leanback.v4"}\'',
+                "guide": '/usr/bin/luna-send-pub -n 1 luna://com.webos.applicationManager/launch \'{"id":"com.webos.app.livetv"}\'',
+                "list": '/usr/bin/luna-send-pub -n 1 luna://com.webos.applicationManager/launch \'{"id":"com.webos.app.livetv"}\'',
+                "input": '/usr/bin/luna-send-pub -n 1 luna://com.webos.applicationManager/launch \'{"id":"com.webos.app.hdmi1"}\'',
+                "stb": '/usr/bin/luna-send-pub -n 1 luna://com.webos.applicationManager/launch \'{"id":"com.webos.app.hdmi2"}\'',
+                "volup": '/usr/bin/luna-send-pub -n 1 luna://com.webos.audio/volumeUp \'{}\'',
+                "voldown": '/usr/bin/luna-send-pub -n 1 luna://com.webos.audio/volumeDown \'{}\'',
+                "mute": '/usr/bin/luna-send-pub -n 1 luna://com.webos.audio/setMuted \'{"mute":true}\'',
+                "chup": '/usr/bin/luna-send-pub -n 1 luna://com.webos.service.tv/channelUp \'{}\'',
+                "chdown": '/usr/bin/luna-send-pub -n 1 luna://com.webos.service.tv/channelDown \'{}\'',
+                "power": '/usr/bin/luna-send-pub -n 1 luna://com.webos.service.tvpower/power/turnOff \'{}\'',
+            }
+            out = ""
+            if btn in sys_cmds:
+                threading.Thread(target=run_ssh_command_on_tv, args=(tv_ip, tv_pass, sys_cmds[btn]), daemon=True).start()
+                out = f"Comandă sistem trimisă: {btn}"
+            else:
+                out = f"Tastă telecomandă trimisă: {btn}"
+
+            self._send_json({"ok": True, "message": out})
+            return
+
         if path == "/api/cast/upload":
             orig_filename, file_bytes = parse_multipart_file(self.headers, self.rfile)
             if not orig_filename or file_bytes is None:

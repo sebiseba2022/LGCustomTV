@@ -1075,6 +1075,16 @@
 
             <!-- Right: Quick Actions, Toast & Deploy -->
             <div>
+              <div class="sub-card" style="border-color: var(--color-brand-teal); background: #f0fdfa;">
+                <h3>🔗 Activare 100% Butoane Hardware (Power, Canale, Săgeți, Mute)</h3>
+                <p style="margin-bottom:0.65rem;">
+                  Apasă butonul de mai jos, apoi uită-te pe ecranul televizorului LG și apasă <strong>Da / Accept</strong> cu telecomanda fizică (o singură dată!). După aceea merg absolut toate butoanele telecomenzii, chiar și peste Canale TV, Netflix sau YouTube.
+                </p>
+                <button class="btn btn-primary" onclick="pairHardwareRemoteWithTv()" id="btnPairSsap">
+                  🔗 Conectează Telecomanda Hardware cu TV-ul (Accept pe TV)
+                </button>
+              </div>
+
               <div class="sub-card">
                 <h3>🎨 Funcții Speciale pe Cele 4 Butoane Colorate</h3>
                 <p style="margin-bottom:0.5rem;">Am mapat butoanele colorate de pe telecomandă la funcțiile tale custom:</p>
@@ -1893,6 +1903,22 @@
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ type: "toast", message: msg })
       }).then(function () { logMsg("Notificare trimisă pe TV: " + msg); });
+    }
+
+    function pairHardwareRemoteWithTv() {
+      var btn = document.getElementById("btnPairSsap");
+      if (btn) btn.textContent = "⏳ Uită-te pe TV și apasă DA / ACCEPT...";
+      logMsg("Cerere de împerechere trimisă pe TV (192.168.1.242)! Apasă DA pe ecranul televizorului în 45 secunde...");
+      fetch("/api/tv/pair-ssap", { method: "POST" })
+        .then(function (r) { return r.json(); })
+        .then(function (res) {
+          logMsg(res.message || "Finalizat!");
+          if (btn) btn.textContent = res.ok ? "✅ Telecomandă Hardware Conectată!" : "🔗 Reîncearcă Conectarea cu TV-ul";
+        })
+        .catch(function (err) {
+          logMsg("Eroare împerechere: " + err.message);
+          if (btn) btn.textContent = "🔗 Reîncearcă Conectarea cu TV-ul";
+        });
     }
 
     function sendRemoteKey(keyName) {

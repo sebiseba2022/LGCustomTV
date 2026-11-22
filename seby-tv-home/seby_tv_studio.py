@@ -663,6 +663,57 @@ class StudioRequestHandler(BaseHTTPRequestHandler):
             self._send_json({"ok": True, "message": f"Lansat pe TV ({app_id}): {out}"})
             return
 
+        if path == "/api/tv/pair-ssap":
+            cfg = load_config()
+            tv_ip = cfg.get("tv_ip", "192.168.1.242")
+
+            async def _pair_now():
+                global SSAP_CLIENT_KEY
+                uri = f"ws://{tv_ip}:3000"
+                async with websockets.connect(uri, open_timeout=5, close_timeout=2) as ws:
+                    reg_payload = {
+                        "forcePairing": False,
+                        "pairingType": "PROMPT",
+                        "manifest": {
+                            "manifestVersion": 1,
+                            "appVersion": "1.1",
+                            "permissions": [
+                                "LAUNCH", "LAUNCH_WEBAPP", "APP_TO_APP", "CLOSE",
+                                "TEST_OPEN", "TEST_PROTECTED", "CONTROL_AUDIO",
+                                "CONTROL_DISPLAY", "CONTROL_INPUT_JOYSTICK",
+                                "CONTROL_INPUT_MEDIA_RECORDING", "CONTROL_INPUT_MEDIA_PLAYBACK",
+                                "CONTROL_INPUT_TV", "CONTROL_POWER", "READ_APP_STATUS",
+                                "READ_CURRENT_CHANNEL", "READ_INPUT_DEVICE_LIST",
+                                "READ_NETWORK_STATE", "READ_RUNNING_APPS", "READ_TV_CHANNEL_LIST",
+                                "WRITE_NOTIFICATION_TOAST", "READ_POWER_STATE", "READ_COUNTRY_INFO"
+                            ]
+                        }
+                    }
+                    if cfg.get("ssap_client_key"):
+                        reg_payload["client-key"] = cfg["ssap_client_key"]
+                    await ws.send(json.dumps({"type": "register", "id": "pair_1", "payload": reg_payload}))
+                    for _ in range(3):
+                        raw = await asyncio.wait_for(ws.recv(), timeout=45.0)
+                        resp = json.loads(raw)
+                        if resp.get("type") == "registered":
+                            new_key = resp.get("payload", {}).get("client-key")
+                            if new_key:
+                                SSAP_CLIENT_KEY = new_key
+                                cfg["ssap_client_key"] = new_key
+                                save_config(cfg)
+                            return True, f"Împerechere reușită! Cheia a fost salvată ({new_key[:8]}...). Acum merg 100% din butoane!"
+                        if resp.get("type") == "error":
+                            return False, f"Respins pe TV: {resp.get('error', '')}"
+                return False, "Timpul a expirat (45s). Încearcă din nou și apasă DA pe televizor."
+
+            try:
+                fut = asyncio.run_coroutine_threadsafe(_pair_now(), WS_LOOP)
+                ok, msg = fut.result(timeout=50)
+                self._send_json({"ok": ok, "message": msg})
+            except Exception as e:
+                self._send_json({"ok": False, "message": f"Eroare împerechere: {e}"})
+            return
+
         if path == "/api/tv/remote-button":
             length = int(self.headers.get("Content-Length", "0"))
             body = json.loads(self.rfile.read(length).decode("utf-8"))

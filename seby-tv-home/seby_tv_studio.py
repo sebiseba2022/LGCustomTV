@@ -375,6 +375,16 @@ async def _send_ssap_command_async(tv_ip: str, btn: str, cards: list):
                 await asyncio.wait_for(ws.recv(), timeout=2.0)
                 return "Pause"
 
+            if btn.startswith("toast:"):
+                toast_msg = btn[len("toast:"):]
+                await ws.send(json.dumps({
+                    "type": "request", "id": "cmd_1",
+                    "uri": "ssap://system.notifications/createToast",
+                    "payload": {"message": toast_msg}
+                }))
+                await asyncio.wait_for(ws.recv(), timeout=2.0)
+                return f"Notificare sistem LG afișată pe TV: {toast_msg}"
+
             # Send ANY hardware remote button via getPointerInputSocket (UP, DOWN, LEFT, RIGHT, ENTER, BACK, 0-9, RED, GREEN, YELLOW, BLUE, GUIDE, etc.)
             hw_name = SSAP_BUTTON_MAP.get(btn)
             if hw_name:
@@ -616,6 +626,12 @@ class StudioRequestHandler(BaseHTTPRequestHandler):
             length = int(self.headers.get("Content-Length", "0"))
             ev = json.loads(self.rfile.read(length).decode("utf-8"))
             push_tv_event(ev)
+            # If it's a toast notification, ALSO display it natively on the LG TV screen via SSAP
+            # so it pops up over Live TV, HDMI 1/2, Netflix, YouTube, everywhere!
+            if ev.get("type") == "toast" and ev.get("message") and HAS_WEBSOCKETS and WS_LOOP:
+                cfg = load_config()
+                tv_ip = cfg.get("tv_ip", "192.168.1.242")
+                asyncio.run_coroutine_threadsafe(_send_ssap_command_async(tv_ip, "toast:" + ev["message"], []), WS_LOOP)
             self._send_json({"ok": True})
             return
 

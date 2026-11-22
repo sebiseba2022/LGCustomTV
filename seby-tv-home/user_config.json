@@ -134,5 +134,6 @@
       "iconBg": "linear-gradient(135deg, #06b6d4 0%, #0e7490 100%)",
       "iconType": "hdmi"
     }
-  ]
+  ],
+  "ssap_client_key": "82088d5514a599363e8f4d7af675cfe3"
 }

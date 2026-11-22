@@ -75,7 +75,7 @@ async def _ws_cast_handler(websocket):
                 for d in dead:
                     WS_VIEWERS.discard(d)
             elif isinstance(message, str):
-                # Relay WebRTC 60FPS Signaling JSON messages (offer, answer, ice_candidate, viewer_ready)
+                # Relay WebRTC 60FPS Signaling or Instant Remote Button JSON messages
                 dead = []
                 for peer in list(WS_VIEWERS):
                     if peer is not websocket:
@@ -85,6 +85,28 @@ async def _ws_cast_handler(websocket):
                             dead.append(peer)
                 for d in dead:
                     WS_VIEWERS.discard(d)
+
+
+def broadcast_ws_text_message(payload_dict: dict):
+    """Trimite instant (sub 5ms) o comandă JSON către toate televizoarele/preview-urile conectate pe WebSocket."""
+    if not WS_LOOP or not WS_VIEWERS:
+        return
+    msg = json.dumps(payload_dict, ensure_ascii=False)
+
+    async def _send_all():
+        dead = []
+        for peer in list(WS_VIEWERS):
+            try:
+                await peer.send(msg)
+            except Exception:
+                dead.append(peer)
+        for d in dead:
+            WS_VIEWERS.discard(d)
+
+    try:
+        asyncio.run_coroutine_threadsafe(_send_all(), WS_LOOP)
+    except Exception:
+        pass
     except Exception:
         pass
     finally:
@@ -177,6 +199,8 @@ def push_tv_event(event_dict: dict):
         TV_EVENTS.append(event_dict)
         if len(TV_EVENTS) > 50:
             del TV_EVENTS[:-50]
+    # Also broadcast immediately over WebSocket (0ms latency)
+    broadcast_ws_text_message({"type": "tv_instant_event", "event": event_dict})
 
 
 def get_pc_quick_stats() -> str:

@@ -223,7 +223,44 @@
 
       discoverWebOSApps();
       startPcStudioLiveBridge();
+      connectPersistentControlWebSocket();
     });
+  }
+
+  // Persistent Control WebSocket for 0ms Remote Button response + postMessage from Studio Preview
+  var controlWs = null;
+  function connectPersistentControlWebSocket() {
+    window.addEventListener("message", function (e) {
+      if (e.data && e.data.type === "remote_key") {
+        simulateRemoteAction(e.data.key);
+      }
+    });
+
+    if (typeof window.WebSocket === "undefined") return;
+    var ip = (appConfig && appConfig.pc_ip) ? appConfig.pc_ip : "192.168.1.247";
+    var port = ((appConfig && appConfig.pc_port) ? parseInt(appConfig.pc_port, 10) : 8765) + 1;
+    if (window.location.hostname && window.location.hostname !== "" && window.location.protocol.indexOf("http") === 0) {
+      ip = window.location.hostname;
+    }
+    try {
+      controlWs = new window.WebSocket("ws://" + ip + ":" + port);
+      controlWs.onmessage = function (evt) {
+        if (typeof evt.data === "string") {
+          try {
+            var msg = JSON.parse(evt.data);
+            if (msg.type === "tv_instant_event" && msg.event) {
+              if (msg.event.id > lastEventId) {
+                lastEventId = msg.event.id;
+                handlePcRemoteEvent(msg.event);
+              }
+            }
+          } catch (err) {}
+        }
+      };
+      controlWs.onclose = function () {
+        setTimeout(connectPersistentControlWebSocket, 2500);
+      };
+    } catch (e) {}
   }
 
   /* ------------------------------------------------------------------------

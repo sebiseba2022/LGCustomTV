@@ -1900,6 +1900,15 @@
     }
 
     function pressLgRemote(buttonName) {
+      // 1. Immediately notify Live Preview iframe (0ms visual feedback)
+      var previewFrame = document.getElementById("tvPreviewFrame");
+      if (previewFrame && previewFrame.contentWindow) {
+        try {
+          previewFrame.contentWindow.postMessage({ type: "remote_key", key: buttonName }, "*");
+        } catch (e) {}
+      }
+
+      // 2. Send to server which broadcasts via WebSocket + SSH to TV
       fetch("/api/tv/remote-button", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -1909,7 +1918,9 @@
       .then(function (res) {
         if (res && res.message) logMsg(res.message);
       })
-      .catch(function () {});
+      .catch(function (err) {
+        logMsg("Eroare conexiune server: " + err.message);
+      });
     }
 
     window.addEventListener("DOMContentLoaded", loadInitialConfig);

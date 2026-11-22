@@ -11,7 +11,7 @@
   "wallpaper_dim": 0.65,
   "weather_city": "București",
   "weather_lat": 44.43,
-  "weather_lon": 26.10,
+  "weather_lon": 26.1,
   "show_weather": true,
   "show_clock": true,
   "show_hero": true,
@@ -24,7 +24,6 @@
     "orb1_color": "#ef4444",
     "orb2_color": "#3b82f6",
     "orb3_color": "#10b981",
-    "orb_opacity": 0.42,
     "card_radius": 28,
     "hero_radius": 30,
     "card_height": 295,
@@ -32,11 +31,12 @@
     "card_blur": 22,
     "card_bg_opacity": 0.07,
     "card_border_opacity": 0.14,
+    "orb_opacity": 0.42,
     "hover_scale": 1.05,
-    "font_scale": 1.0,
+    "font_scale": 1,
     "layout_align": "space-between",
     "shell_pad_x": 76,
-    "shell_pad_y": 42
+    "shell_pad_y": 44
   },
   "custom_texts": [],
   "cards": [
@@ -47,7 +47,10 @@
       "category": "STREAMING VIDEO",
       "heroDesc": "Deschide instant aplicația YouTube de pe televizorul tău LG.",
       "appId": "youtube.leanback.v4",
-      "fallbackIds": ["youtube.leanback.v4", "com.webos.app.youtube"],
+      "fallbackIds": [
+        "youtube.leanback.v4",
+        "com.webos.app.youtube"
+      ],
       "theme": "youtube",
       "accentColor": "#ff0033",
       "iconBg": "linear-gradient(135deg, #ff0033 0%, #b30024 100%)",
@@ -60,7 +63,10 @@
       "category": "CINEMA & SERIALE",
       "heroDesc": "Continuă vizionarea pe Netflix în 4K HDR cu un singur click.",
       "appId": "netflix",
-      "fallbackIds": ["netflix", "com.webos.app.netflix"],
+      "fallbackIds": [
+        "netflix",
+        "com.webos.app.netflix"
+      ],
       "theme": "netflix",
       "accentColor": "#e50914",
       "iconBg": "linear-gradient(135deg, #e50914 0%, #831010 100%)",
@@ -73,7 +79,11 @@
       "category": "MUZICĂ & AUDIO",
       "heroDesc": "Redă muzica ta preferată prin sistemul audio al televizorului.",
       "appId": "spotify-beehive",
-      "fallbackIds": ["spotify-beehive", "spotify", "com.spotify.tv.client"],
+      "fallbackIds": [
+        "spotify-beehive",
+        "spotify",
+        "com.spotify.tv.client"
+      ],
       "theme": "spotify",
       "accentColor": "#1db954",
       "iconBg": "linear-gradient(135deg, #1db954 0%, #117a37 100%)",
@@ -86,7 +96,9 @@
       "category": "EMISIE DIRECTĂ",
       "heroDesc": "Comută imediat pe posturile TV prin cablu sau antenă (Live TV).",
       "appId": "com.webos.app.livetv",
-      "fallbackIds": ["com.webos.app.livetv"],
+      "fallbackIds": [
+        "com.webos.app.livetv"
+      ],
       "theme": "livetv",
       "accentColor": "#3b82f6",
       "iconBg": "linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)",
@@ -99,7 +111,9 @@
       "category": "INTRARE VIDEO 1",
       "heroDesc": "Comută semnalul video al televizorului direct pe portul HDMI 1.",
       "appId": "com.webos.app.hdmi1",
-      "fallbackIds": ["com.webos.app.hdmi1"],
+      "fallbackIds": [
+        "com.webos.app.hdmi1"
+      ],
       "theme": "hdmi1",
       "accentColor": "#8b5cf6",
       "iconBg": "linear-gradient(135deg, #8b5cf6 0%, #5b21b6 100%)",
@@ -112,7 +126,9 @@
       "category": "INTRARE VIDEO 2",
       "heroDesc": "Comută semnalul video al televizorului direct pe portul HDMI 2 (ARC).",
       "appId": "com.webos.app.hdmi2",
-      "fallbackIds": ["com.webos.app.hdmi2"],
+      "fallbackIds": [
+        "com.webos.app.hdmi2"
+      ],
       "theme": "hdmi2",
       "accentColor": "#06b6d4",
       "iconBg": "linear-gradient(135deg, #06b6d4 0%, #0e7490 100%)",

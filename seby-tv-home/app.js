@@ -199,6 +199,8 @@
   var isModalOpen = false;
   var isCastOpen = false;
   var screenMirrorTimer = null;
+  var castWebSocket = null;
+  var castBlobUrl = null;
   var activeMirrorMonitor = 1;
   var lastEventId = 0;
   var lastConfigHash = "";
@@ -528,8 +530,8 @@
     if (mediaType === "screen_mirror") {
       activeMirrorMonitor = (monitorIdx !== undefined && monitorIdx !== null) ? monitorIdx : 1;
       imgEl.classList.remove("hidden");
-      showToast("Partajare Ecran PC Live (Monitor " + activeMirrorMonitor + ") activă!");
-      pumpScreenMirrorFrame(imgEl);
+      showToast("Turbo Cast Ecran PC Live activ!");
+      startTurboWebSocketMirror(imgEl);
       return;
     }
 
@@ -555,6 +557,73 @@
     }
   }
 
+  function startTurboWebSocketMirror(imgEl) {
+    closeCastWebSocket();
+    var ip = (appConfig && appConfig.pc_ip) ? appConfig.pc_ip : "192.168.1.247";
+    var port = ((appConfig && appConfig.pc_port) ? parseInt(appConfig.pc_port, 10) : 8765) + 1;
+    if (window.location.hostname && window.location.hostname !== "" && window.location.protocol.indexOf("http") === 0) {
+      ip = window.location.hostname;
+    }
+    var wsUrl = "ws://" + ip + ":" + port;
+    var wsReceivedFrames = false;
+
+    if (typeof window.WebSocket !== "undefined") {
+      try {
+        castWebSocket = new window.WebSocket(wsUrl);
+        castWebSocket.binaryType = "blob";
+
+        castWebSocket.onmessage = function (evt) {
+          if (!isCastOpen || !evt.data) return;
+          wsReceivedFrames = true;
+          if (screenMirrorTimer) {
+            clearTimeout(screenMirrorTimer);
+            screenMirrorTimer = null;
+          }
+          if (typeof window.URL !== "undefined" && window.URL.createObjectURL) {
+            var nextUrl = window.URL.createObjectURL(evt.data);
+            imgEl.src = nextUrl;
+            if (castBlobUrl) {
+              try { window.URL.revokeObjectURL(castBlobUrl); } catch (e) {}
+            }
+            castBlobUrl = nextUrl;
+          }
+        };
+
+        castWebSocket.onerror = function () {
+          if (!wsReceivedFrames && isCastOpen) {
+            pumpScreenMirrorFrame(imgEl);
+          }
+        };
+
+        castWebSocket.onclose = function () {
+          if (isCastOpen && !screenMirrorTimer) {
+            pumpScreenMirrorFrame(imgEl);
+          }
+        };
+      } catch (e) {
+        pumpScreenMirrorFrame(imgEl);
+      }
+    }
+
+    // Fallback check after 600ms if WebSocket hasn't received binary frames yet
+    screenMirrorTimer = setTimeout(function () {
+      if (!wsReceivedFrames && isCastOpen) {
+        pumpScreenMirrorFrame(imgEl);
+      }
+    }, 600);
+  }
+
+  function closeCastWebSocket() {
+    if (castWebSocket) {
+      try { castWebSocket.close(); } catch (e) {}
+      castWebSocket = null;
+    }
+    if (castBlobUrl && typeof window.URL !== "undefined") {
+      try { window.URL.revokeObjectURL(castBlobUrl); } catch (e) {}
+      castBlobUrl = null;
+    }
+  }
+
   function pumpScreenMirrorFrame(imgEl) {
     if (!isCastOpen) return;
     var frameUrl = getPcBaseUrl() + "/api/cast/screen.jpg?monitor=" + activeMirrorMonitor + "&t=" + new Date().getTime();
@@ -564,13 +633,13 @@
       imgEl.src = frameUrl;
       screenMirrorTimer = setTimeout(function () {
         pumpScreenMirrorFrame(imgEl);
-      }, 110);
+      }, 45);
     };
     preloader.onerror = function () {
       if (!isCastOpen) return;
       screenMirrorTimer = setTimeout(function () {
         pumpScreenMirrorFrame(imgEl);
-      }, 600);
+      }, 300);
     };
     preloader.src = frameUrl;
   }
@@ -604,6 +673,7 @@
   }
 
   function stopCastPlayback() {
+    closeCastWebSocket();
     if (screenMirrorTimer) {
       clearTimeout(screenMirrorTimer);
       screenMirrorTimer = null;

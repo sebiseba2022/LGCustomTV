@@ -466,8 +466,12 @@
             </p>
             <div style="display:flex; flex-wrap:wrap; gap:0.65rem; align-items:center;">
               <button class="btn btn-primary" onclick="startInteractiveScreenPickerCast()">
-                🖥️ Alege Ce Ecran / Fereastră să Trimiți pe TV
+                🖥️ Alege Ce Ecran / Fereastră să Trimiți pe TV (Turbo 25-30 FPS)
               </button>
+              <select id="castQualitySelect" style="padding:0.5rem 0.7rem; border-radius:var(--radius-md); border:1px solid var(--color-border-strong); font-weight:600; font-size:0.84rem;">
+                <option value="turbo" selected>⚡ Mod Turbo Fluid (720p @ 28 FPS)</option>
+                <option value="hd">🎬 Mod Claritate HD (1080p @ 18 FPS)</option>
+              </select>
               <button class="btn btn-danger" onclick="stopAllCast()">⏹️ Oprește Cast</button>
               <span id="pickerCastStatus" style="font-size:0.82rem; font-weight:600; color:var(--color-brand-teal);"></span>
             </div>
@@ -837,6 +841,8 @@
     var deferredPwaPrompt = null;
     var webrtcStream = null;
     var webrtcPushTimer = null;
+    var studioCastWs = null;
+    var wsBackpressureBusy = false;
 
     // Register Service Worker for PC & Mobile PWA installation
     if ("serviceWorker" in navigator) {
@@ -1188,17 +1194,24 @@
     }
 
     /* ----------------------------------------------------------------------
-       Interactive Screen / Monitor / Window Picker Cast (No Black Screen!)
-       Uses browser's native getDisplayMedia() so user picks exact screen/window
-       and pushes JPEG frames to the server for the TV to display smoothly!
+       Interactive Screen / Monitor / Window Picker Cast (Turbo WebSocket 25-30 FPS!)
+       Streams binary JPEG frames directly over persistent WebSocket (port 8766)
+       with backpressure control so it runs smoothly even when tab is in background!
        ---------------------------------------------------------------------- */
     function startInteractiveScreenPickerCast() {
       if (!navigator.mediaDevices || !navigator.mediaDevices.getDisplayMedia) {
         alert("Browserul curent nu suportă selectorul de ecran sau folosește Opțiunea 2 (Server Monitor Cast).");
         return;
       }
+      var qMode = document.getElementById("castQualitySelect") ? document.getElementById("castQualitySelect").value : "turbo";
+      var capW = qMode === "hd" ? 1600 : 1280;
+      var capH = qMode === "hd" ? 900 : 720;
+      var capFps = qMode === "hd" ? 20 : 28;
+      var jpgQual = qMode === "hd" ? 0.68 : 0.56;
+      var intervalMs = Math.round(1000 / capFps);
+
       navigator.mediaDevices.getDisplayMedia({
-        video: { width: { ideal: 1280 }, height: { ideal: 720 }, frameRate: { ideal: 12 } },
+        video: { width: { ideal: capW }, height: { ideal: capH }, frameRate: { ideal: capFps } },
         audio: false
       }).then(function (stream) {
         if (webrtcStream) {
@@ -1207,12 +1220,27 @@
         webrtcStream = stream;
         var video = document.getElementById("webrtcCaptureVideo");
         var canvas = document.getElementById("webrtcCaptureCanvas");
-        var ctx = canvas.getContext("2d");
+        canvas.width = capW;
+        canvas.height = capH;
+        var ctx = canvas.getContext("2d", { alpha: false });
         video.srcObject = stream;
         video.play();
 
-        document.getElementById("pickerCastStatus").textContent = "🟢 Partajare Ecran Activă pe TV!";
-        logMsg("Partajare ecran pornită! Se transmite imaginea selectată către televizor...");
+        // Open Persistent Turbo WebSocket to Server (port 8766)
+        if (studioCastWs) {
+          try { studioCastWs.close(); } catch (e) {}
+        }
+        var wsHost = window.location.hostname || "localhost";
+        var wsPort = 8766;
+        try {
+          studioCastWs = new WebSocket("ws://" + wsHost + ":" + wsPort);
+          studioCastWs.binaryType = "arraybuffer";
+        } catch (e) {
+          studioCastWs = null;
+        }
+
+        document.getElementById("pickerCastStatus").textContent = "🟢 Turbo Cast Activ (" + capFps + " FPS)!";
+        logMsg("Turbo WebSocket Cast pornit (" + capW + "x" + capH + " @ " + capFps + " FPS)!");
 
         openCustomHomeOnTv();
         setTimeout(function () {
@@ -1223,33 +1251,42 @@
               type: "cast_media",
               mediaType: "screen_mirror",
               monitorIndex: "browser",
-              title: "Ecran Partajat Live de pe PC"
+              title: "Ecran Partajat Live (Turbo Cast)"
             })
           });
-        }, 500);
+        }, 450);
 
         if (webrtcPushTimer) clearInterval(webrtcPushTimer);
+        wsBackpressureBusy = false;
+
         webrtcPushTimer = setInterval(function () {
           if (!webrtcStream || !webrtcStream.active) {
             clearInterval(webrtcPushTimer);
             document.getElementById("pickerCastStatus").textContent = "";
             return;
           }
-          if (video.readyState >= 2) {
-            canvas.width = 1280;
-            canvas.height = 720;
-            ctx.drawImage(video, 0, 0, 1280, 720);
+          if (video.readyState >= 2 && !wsBackpressureBusy) {
+            // Skip frame if socket buffer has > 250KB queued (prevents lag buildup)
+            if (studioCastWs && studioCastWs.readyState === 1 && studioCastWs.bufferedAmount > 256000) {
+              return;
+            }
+            wsBackpressureBusy = true;
+            ctx.drawImage(video, 0, 0, capW, capH);
             canvas.toBlob(function (blob) {
-              if (blob) {
+              wsBackpressureBusy = false;
+              if (!blob) return;
+              if (studioCastWs && studioCastWs.readyState === 1) {
+                studioCastWs.send(blob);
+              } else {
                 fetch("/api/cast/push-frame", {
                   method: "POST",
                   headers: { "Content-Type": "image/jpeg" },
                   body: blob
                 }).catch(function () {});
               }
-            }, "image/jpeg", 0.72);
+            }, "image/jpeg", jpgQual);
           }
-        }, 120);
+        }, intervalMs);
 
         stream.getVideoTracks()[0].addEventListener("ended", function () {
           stopAllCast();
@@ -1295,6 +1332,10 @@
       if (webrtcPushTimer) {
         clearInterval(webrtcPushTimer);
         webrtcPushTimer = null;
+      }
+      if (studioCastWs) {
+        try { studioCastWs.close(); } catch (e) {}
+        studioCastWs = null;
       }
       if (webrtcStream) {
         webrtcStream.getTracks().forEach(function (t) { t.stop(); });

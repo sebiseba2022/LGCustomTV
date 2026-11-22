@@ -12,6 +12,7 @@ Rulează pe PC (http://localhost:8765) și pe Telefon (http://192.168.1.247:8765
    - Streaming filme/video (.mp4, .mkv, .webm), muzică (.mp3) și poze cu derulare HTTP Byte-Range.
 """
 
+import asyncio
 import ctypes
 import ctypes.wintypes as wt
 import hashlib
@@ -29,6 +30,12 @@ import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs, urlparse
 
+try:
+    import websockets
+    HAS_WEBSOCKETS = True
+except ImportError:
+    HAS_WEBSOCKETS = False
+
 PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
 CONFIG_PATH = os.path.join(PROJECT_DIR, "user_config.json")
 UPLOADS_DIR = os.path.join(PROJECT_DIR, "cast_uploads")
@@ -44,6 +51,63 @@ DIRECT_CAST_FILES = {}
 # Buffer for frames pushed from the browser's interactive Screen/Window Picker (getDisplayMedia)
 LATEST_BROWSER_FRAME = None
 LATEST_BROWSER_FRAME_TIME = 0.0
+
+# High-Speed WebSocket Cast Relay (Port 8766) - Zero HTTP polling overhead (25-30 FPS)
+WS_VIEWERS = set()
+WS_LOOP = None
+
+
+async def _ws_cast_handler(websocket):
+    global LATEST_BROWSER_FRAME, LATEST_BROWSER_FRAME_TIME
+    WS_VIEWERS.add(websocket)
+    try:
+        # Send latest frame immediately upon connect if available
+        if LATEST_BROWSER_FRAME:
+            try:
+                await websocket.send(LATEST_BROWSER_FRAME)
+            except Exception:
+                pass
+        async for message in websocket:
+            if isinstance(message, (bytes, bytearray)):
+                LATEST_BROWSER_FRAME = bytes(message)
+                LATEST_BROWSER_FRAME_TIME = time.time()
+                # Broadcast binary JPEG directly to all connected TV viewers
+                dead = []
+                for viewer in list(WS_VIEWERS):
+                    if viewer is not websocket:
+                        try:
+                            await viewer.send(LATEST_BROWSER_FRAME)
+                        except Exception:
+                            dead.append(viewer)
+                for d in dead:
+                    WS_VIEWERS.discard(d)
+    except Exception:
+        pass
+    finally:
+        WS_VIEWERS.discard(websocket)
+
+
+def start_websocket_cast_server(ws_port: int = 8766):
+    if not HAS_WEBSOCKETS:
+        return
+
+    def _run():
+        global WS_LOOP
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        WS_LOOP = loop
+
+        async def _serve():
+            async with websockets.serve(_ws_cast_handler, "0.0.0.0", ws_port, max_size=4 * 1024 * 1024):
+                await asyncio.Future()
+
+        try:
+            loop.run_until_complete(_serve())
+        except Exception:
+            pass
+
+    t = threading.Thread(target=_run, daemon=True)
+    t.start()
 
 
 def parse_multipart_file(headers, rfile):
@@ -556,11 +620,13 @@ def main():
     cfg["pc_ip"] = lan_ip
     save_config(cfg)
 
+    start_websocket_cast_server(port + 1)
     server = ThreadingHTTPServer(("0.0.0.0", port), StudioRequestHandler)
     print("=========================================================================")
-    print(" SEBY TV STUDIO (PC & TELEFON) & MULTI-MONITOR LAN CAST SERVER PORNIT!")
+    print(" SEBY TV STUDIO (PC & TELEFON) & HIGH-FPS WEBSOCKET CAST PORNIT!")
     print(f" -> Deschide pe Calculator: http://localhost:{port}")
     print(f" -> Deschide pe Telefon:    http://{lan_ip}:{port}")
+    print(f" -> Turbo WebSocket Cast:   ws://{lan_ip}:{port + 1}")
     print("=========================================================================")
     try:
         server.serve_forever()

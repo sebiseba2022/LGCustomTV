@@ -242,6 +242,157 @@ def run_ssh_command_on_tv(tv_ip: str, passphrase: str, remote_cmd: str) -> str:
         return f"Eroare SSH: {e}"
 
 
+# ==============================================================================
+# LG SSAP Official Hardware Remote Control Bridge (ws://TV_IP:3000)
+# Controls the TV everywhere (even when on HDMI 1, HDMI 2, Live TV, Netflix, YouTube!)
+# ==============================================================================
+SSAP_CLIENT_KEY = None
+SSAP_BUTTON_MAP = {
+    "up": "UP",
+    "down": "DOWN",
+    "left": "LEFT",
+    "right": "RIGHT",
+    "ok": "ENTER",
+    "back": "BACK",
+    "home": "HOME",
+    "input": "INPUT_HUB",
+    "guide": "GUIDE",
+    "list": "LIST",
+    "more": "MORE_ACTIONS",
+    "volup": "VOLUMEUP",
+    "voldown": "VOLUMEDOWN",
+    "mute": "MUTE",
+    "chup": "CHANNELUP",
+    "chdown": "CHANNELDOWN",
+    "play": "PLAY",
+    "pause": "PAUSE",
+    "red": "RED",
+    "green": "GREEN",
+    "yellow": "YELLOW",
+    "blue": "BLUE",
+    "num0": "0",
+    "num1": "1",
+    "num2": "2",
+    "num3": "3",
+    "num4": "4",
+    "num5": "5",
+    "num6": "6",
+    "num7": "7",
+    "num8": "8",
+    "num9": "9",
+}
+
+
+async def _send_ssap_command_async(tv_ip: str, btn: str, cards: list):
+    global SSAP_CLIENT_KEY
+    cfg = load_config()
+    if not SSAP_CLIENT_KEY:
+        SSAP_CLIENT_KEY = cfg.get("ssap_client_key")
+
+    uri = f"ws://{tv_ip}:3000"
+    try:
+        async with websockets.connect(uri, open_timeout=3, close_timeout=2) as ws:
+            reg_payload = {
+                "forcePairing": False,
+                "pairingType": "PROMPT",
+                "manifest": {
+                    "manifestVersion": 1,
+                    "appVersion": "1.1",
+                    "permissions": [
+                        "LAUNCH", "LAUNCH_WEBAPP", "APP_TO_APP", "CLOSE",
+                        "TEST_OPEN", "TEST_PROTECTED", "CONTROL_AUDIO",
+                        "CONTROL_DISPLAY", "CONTROL_INPUT_JOYSTICK",
+                        "CONTROL_INPUT_MEDIA_RECORDING", "CONTROL_INPUT_MEDIA_PLAYBACK",
+                        "CONTROL_INPUT_TV", "CONTROL_POWER", "READ_APP_STATUS",
+                        "READ_CURRENT_CHANNEL", "READ_INPUT_DEVICE_LIST",
+                        "READ_NETWORK_STATE", "READ_RUNNING_APPS", "READ_TV_CHANNEL_LIST",
+                        "WRITE_NOTIFICATION_TOAST", "READ_POWER_STATE", "READ_COUNTRY_INFO"
+                    ]
+                }
+            }
+            if SSAP_CLIENT_KEY:
+                reg_payload["client-key"] = SSAP_CLIENT_KEY
+
+            await ws.send(json.dumps({"type": "register", "id": "reg_1", "payload": reg_payload}))
+
+            # Wait for registered response (if prompt shown on TV, wait up to 15s for user to click OK)
+            for _ in range(2):
+                raw = await asyncio.wait_for(ws.recv(), timeout=15.0)
+                resp = json.loads(raw)
+                if resp.get("type") == "registered":
+                    new_key = resp.get("payload", {}).get("client-key")
+                    if new_key and new_key != SSAP_CLIENT_KEY:
+                        SSAP_CLIENT_KEY = new_key
+                        cfg["ssap_client_key"] = new_key
+                        save_config(cfg)
+                    break
+
+            # Execute command via SSAP
+            if btn == "home":
+                await ws.send(json.dumps({
+                    "type": "request", "id": "cmd_1",
+                    "uri": "ssap://system.launcher/launch",
+                    "payload": {"id": "com.seby.customhome"}
+                }))
+                await asyncio.wait_for(ws.recv(), timeout=3.0)
+                return "Deschis Seby TV Home (peste HDMI / TV)"
+
+            if btn == "power":
+                await ws.send(json.dumps({"type": "request", "id": "cmd_1", "uri": "ssap://system/turnOff", "payload": {}}))
+                await asyncio.wait_for(ws.recv(), timeout=2.0)
+                return "TV Power Off"
+
+            if btn == "volup":
+                await ws.send(json.dumps({"type": "request", "id": "cmd_1", "uri": "ssap://audio/volumeUp", "payload": {}}))
+                await asyncio.wait_for(ws.recv(), timeout=2.0)
+                return "Volum +"
+
+            if btn == "voldown":
+                await ws.send(json.dumps({"type": "request", "id": "cmd_1", "uri": "ssap://audio/volumeDown", "payload": {}}))
+                await asyncio.wait_for(ws.recv(), timeout=2.0)
+                return "Volum -"
+
+            if btn == "mute":
+                await ws.send(json.dumps({"type": "request", "id": "vol_q", "uri": "ssap://audio/getVolume", "payload": {}}))
+                v_resp = json.loads(await asyncio.wait_for(ws.recv(), timeout=2.0))
+                is_muted = v_resp.get("payload", {}).get("muted", False)
+                await ws.send(json.dumps({
+                    "type": "request", "id": "cmd_1",
+                    "uri": "ssap://audio/setMute",
+                    "payload": {"mute": not is_muted}
+                }))
+                await asyncio.wait_for(ws.recv(), timeout=2.0)
+                return f"Mute: {'ON' if not is_muted else 'OFF'}"
+
+            if btn == "chup":
+                await ws.send(json.dumps({"type": "request", "id": "cmd_1", "uri": "ssap://tv/channelUp", "payload": {}}))
+                await asyncio.wait_for(ws.recv(), timeout=2.0)
+                return "Canal +"
+
+            if btn == "chdown":
+                await ws.send(json.dumps({"type": "request", "id": "cmd_1", "uri": "ssap://tv/channelDown", "payload": {}}))
+                await asyncio.wait_for(ws.recv(), timeout=2.0)
+                return "Canal -"
+
+            # For hardware remote keys (UP, DOWN, LEFT, RIGHT, ENTER, BACK, numbers, etc.)
+            hw_name = SSAP_BUTTON_MAP.get(btn)
+            if hw_name:
+                await ws.send(json.dumps({
+                    "type": "request", "id": "sock_1",
+                    "uri": "ssap://com.webos.service.networkinput/getPointerInputSocket",
+                    "payload": {}
+                }))
+                s_resp = json.loads(await asyncio.wait_for(ws.recv(), timeout=3.0))
+                sock_path = s_resp.get("payload", {}).get("socketPath")
+                if sock_path:
+                    async with websockets.connect(sock_path, open_timeout=2, close_timeout=1) as ptr_ws:
+                        await ptr_ws.send(f"type:button\nname:{hw_name}\n\n")
+                    return f"Tastă Hardware LG trimisă: {hw_name}"
+    except Exception as e:
+        return f"SSAP fallback: {e}"
+    return ""
+
+
 def get_windows_monitors():
     """Returnează lista monitoarelor conectate [(left, top, right, bottom), ...]."""
     monitors = []
@@ -512,36 +663,58 @@ class StudioRequestHandler(BaseHTTPRequestHandler):
             cfg = load_config()
             tv_ip = cfg.get("tv_ip", "192.168.1.242")
             tv_pass = cfg.get("tv_passphrase", "1DE7AB")
+            cards = cfg.get("cards", [])
 
-            # Also push to Seby TV Home web app event queue for instant UI navigation
+            # 1. Push to Seby TV Home web app event queue for instant UI navigation
             push_tv_event({"type": "remote_key", "key": btn})
 
-            # Execute system-level webOS commands where applicable
-            sys_cmds = {
-                "home": '/usr/bin/luna-send-pub -n 1 luna://com.webos.applicationManager/launch \'{"id":"com.seby.customhome"}\'',
-                "settings": '/usr/bin/luna-send-pub -n 1 luna://com.webos.applicationManager/launch \'{"id":"com.palm.app.settings"}\'',
-                "netflix": '/usr/bin/luna-send-pub -n 1 luna://com.webos.applicationManager/launch \'{"id":"netflix"}\'',
-                "prime": '/usr/bin/luna-send-pub -n 1 luna://com.webos.applicationManager/launch \'{"id":"amazon"}\'',
-                "movies": '/usr/bin/luna-send-pub -n 1 luna://com.webos.applicationManager/launch \'{"id":"youtube.leanback.v4"}\'',
-                "guide": '/usr/bin/luna-send-pub -n 1 luna://com.webos.applicationManager/launch \'{"id":"com.webos.app.livetv"}\'',
-                "list": '/usr/bin/luna-send-pub -n 1 luna://com.webos.applicationManager/launch \'{"id":"com.webos.app.livetv"}\'',
-                "input": '/usr/bin/luna-send-pub -n 1 luna://com.webos.applicationManager/launch \'{"id":"com.webos.app.hdmi1"}\'',
-                "stb": '/usr/bin/luna-send-pub -n 1 luna://com.webos.applicationManager/launch \'{"id":"com.webos.app.hdmi2"}\'',
-                "volup": '/usr/bin/luna-send-pub -n 1 luna://com.webos.audio/volumeUp \'{}\'',
-                "voldown": '/usr/bin/luna-send-pub -n 1 luna://com.webos.audio/volumeDown \'{}\'',
-                "mute": '/usr/bin/luna-send-pub -n 1 luna://com.webos.audio/setMuted \'{"mute":true}\'',
-                "chup": '/usr/bin/luna-send-pub -n 1 luna://com.webos.service.tv/channelUp \'{}\'',
-                "chdown": '/usr/bin/luna-send-pub -n 1 luna://com.webos.service.tv/channelDown \'{}\'',
-                "power": '/usr/bin/luna-send-pub -n 1 luna://com.webos.service.tvpower/power/turnOff \'{}\'',
-            }
-            out = ""
-            if btn in sys_cmds:
-                threading.Thread(target=run_ssh_command_on_tv, args=(tv_ip, tv_pass, sys_cmds[btn]), daemon=True).start()
-                out = f"Comandă sistem trimisă: {btn}"
-            else:
-                out = f"Tastă telecomandă trimisă: {btn}"
+            # 2. If user pressed number 1..6, also launch that card's app directly on TV via SSH
+            #    so even if the TV is currently on HDMI 1 or Live TV, pressing 1 launches YouTube on the TV!
+            ssh_cmd = None
+            if btn.startswith("num") and len(btn) == 4 and btn[3].isdigit():
+                num_idx = int(btn[3]) - 1
+                if 0 <= num_idx < len(cards):
+                    target_app = cards[num_idx].get("appId", "")
+                    if target_app:
+                        ssh_cmd = f"/usr/bin/luna-send-pub -n 1 luna://com.webos.applicationManager/launch '{{\"id\":\"{target_app}\"}}'"
 
-            self._send_json({"ok": True, "message": out})
+            # 3. Direct SSH system commands that always work via luna-send-pub (even on HDMI 1!)
+            if btn == "home":
+                ssh_cmd = '/usr/bin/luna-send-pub -n 1 luna://com.webos.applicationManager/launch \'{"id":"com.seby.customhome"}\''
+            elif btn == "settings":
+                ssh_cmd = '/usr/bin/luna-send-pub -n 1 luna://com.webos.applicationManager/launch \'{"id":"com.palm.app.settings"}\''
+            elif btn == "netflix":
+                ssh_cmd = '/usr/bin/luna-send-pub -n 1 luna://com.webos.applicationManager/launch \'{"id":"netflix"}\''
+            elif btn == "prime":
+                ssh_cmd = '/usr/bin/luna-send-pub -n 1 luna://com.webos.applicationManager/launch \'{"id":"amazon"}\''
+            elif btn == "movies":
+                ssh_cmd = '/usr/bin/luna-send-pub -n 1 luna://com.webos.applicationManager/launch \'{"id":"youtube.leanback.v4"}\''
+            elif btn == "guide" or btn == "list":
+                ssh_cmd = '/usr/bin/luna-send-pub -n 1 luna://com.webos.applicationManager/launch \'{"id":"com.webos.app.livetv"}\''
+            elif btn == "input":
+                ssh_cmd = '/usr/bin/luna-send-pub -n 1 luna://com.webos.applicationManager/launch \'{"id":"com.webos.app.hdmi1"}\''
+            elif btn == "stb":
+                ssh_cmd = '/usr/bin/luna-send-pub -n 1 luna://com.webos.applicationManager/launch \'{"id":"com.webos.app.hdmi2"}\''
+            elif btn == "volup":
+                ssh_cmd = '/usr/bin/luna-send-pub -n 1 luna://com.webos.audio/volumeUp \'{}\''
+            elif btn == "voldown":
+                ssh_cmd = '/usr/bin/luna-send-pub -n 1 luna://com.webos.audio/volumeDown \'{}\''
+            elif btn == "mute":
+                def _toggle_mute_ssh():
+                    st = run_ssh_command_on_tv(tv_ip, tv_pass, '/usr/bin/luna-send-pub -n 1 luna://com.webos.audio/getVolume \'{}\'')
+                    now_muted = '"muted":true' in st.replace(" ", "")
+                    new_val = "false" if now_muted else "true"
+                    run_ssh_command_on_tv(tv_ip, tv_pass, f'/usr/bin/luna-send-pub -n 1 luna://com.webos.audio/setMuted \'{{"muted":{new_val}}}\'')
+                threading.Thread(target=_toggle_mute_ssh, daemon=True).start()
+
+            if ssh_cmd:
+                threading.Thread(target=run_ssh_command_on_tv, args=(tv_ip, tv_pass, ssh_cmd), daemon=True).start()
+
+            # 4. Also dispatch through official LG SSAP WebSocket (port 3000) for Channel Up/Down & hardware keys
+            if HAS_WEBSOCKETS and WS_LOOP and btn in ("chup", "chdown", "power", "home", "up", "down", "left", "right", "ok", "back"):
+                asyncio.run_coroutine_threadsafe(_send_ssap_command_async(tv_ip, btn, cards), WS_LOOP)
+
+            self._send_json({"ok": True, "message": f"Comandă executată pe TV: {btn}"})
             return
 
         if path == "/api/cast/upload":

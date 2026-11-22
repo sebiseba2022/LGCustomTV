@@ -17,6 +17,8 @@
     "application.launcher",
     "application.operation",
     "tv.input",
+    "tv.channel",
+    "audio.operation",
     "time.query"
   ]
 }

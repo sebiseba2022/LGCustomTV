@@ -1422,6 +1422,20 @@
       openClassicModal();
       return;
     }
+    if (keyName === "chup") {
+      callLunaService("luna://com.webos.service.tv.channel", "channelUp", {}, function () {}, function () {
+        callLunaService("luna://com.webos.service.networkinput", "controls/channelUp", {});
+      });
+      showToast("Canal +");
+      return;
+    }
+    if (keyName === "chdown") {
+      callLunaService("luna://com.webos.service.tv.channel", "channelDown", {}, function () {}, function () {
+        callLunaService("luna://com.webos.service.networkinput", "controls/channelDown", {});
+      });
+      showToast("Canal -");
+      return;
+    }
     var code = map[keyName];
     if (code) {
       handleKeyCode(code, { preventDefault: function () {} });

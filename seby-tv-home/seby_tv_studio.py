@@ -675,19 +675,12 @@ class StudioRequestHandler(BaseHTTPRequestHandler):
             # 1. Push to Seby TV Home web app event queue for instant UI navigation
             push_tv_event({"type": "remote_key", "key": btn})
 
-            # 2. If user pressed number 1..6, also launch that card's app directly on TV via SSH
-            #    so even if the TV is currently on HDMI 1 or Live TV, pressing 1 launches YouTube on the TV!
+            # 2. Direct SSH system commands that always work via luna-send-pub (even on HDMI 1!)
             ssh_cmd = None
-            if btn.startswith("num") and len(btn) == 4 and btn[3].isdigit():
-                num_idx = int(btn[3]) - 1
-                if 0 <= num_idx < len(cards):
-                    target_app = cards[num_idx].get("appId", "")
-                    if target_app:
-                        ssh_cmd = f"/usr/bin/luna-send-pub -n 1 luna://com.webos.applicationManager/launch '{{\"id\":\"{target_app}\"}}'"
-
-            # 3. Direct SSH system commands that always work via luna-send-pub (even on HDMI 1!)
             if btn == "home":
                 ssh_cmd = '/usr/bin/luna-send-pub -n 1 luna://com.webos.applicationManager/launch \'{"id":"com.seby.customhome"}\''
+            elif btn == "power":
+                ssh_cmd = '/usr/bin/luna-send-pub -n 1 luna://com.webos.service.tvpower/power/turnOff \'{}\'; /usr/bin/luna-send-pub -n 1 luna://com.webos.service.tv.power/turnOffScreen \'{}\''
             elif btn == "settings":
                 ssh_cmd = '/usr/bin/luna-send-pub -n 1 luna://com.webos.applicationManager/launch \'{"id":"com.palm.app.settings"}\''
             elif btn == "netflix":

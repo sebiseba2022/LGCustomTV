@@ -209,8 +209,20 @@
   var currentZone = 1;
   var zoneIndices = [0, 0, 0];
   var modalIndex = 0;
+  var appLaunchTimestamp = new Date().getTime();
 
   function init() {
+    appLaunchTimestamp = new Date().getTime();
+    if (typeof window.document !== "undefined") {
+      document.addEventListener("visibilitychange", function () {
+        if (!document.hidden) {
+          appLaunchTimestamp = new Date().getTime();
+        }
+      });
+      window.addEventListener("focus", function () {
+        appLaunchTimestamp = new Date().getTime();
+      });
+    }
     loadEmbeddedUserConfig(function () {
       applyFullConfig(appConfig);
       updateClock();
@@ -1085,6 +1097,10 @@
   }
 
   function launchWebOSAppId(appId, title, fallbackList, indexInFallback) {
+    // 2.2-second launch guard: ignore any automatic or residual click/enter right when Seby TV Home opens!
+    if ((new Date().getTime() - appLaunchTimestamp) < 2200) {
+      return;
+    }
     if (appId === "pc.screen.mirror") {
       startCastPlayback("screen_mirror", "", "Ecran PC Live (Monitor 1)", 1);
       return;
@@ -1424,6 +1440,15 @@
       openClassicModal();
       return;
     }
+    if (keyName === "power") {
+      showToast("Oprire TV...");
+      callLunaService("luna://com.webos.service.tvpower", "power/turnOff", {}, function () {}, function () {
+        callLunaService("luna://com.webos.service.tvpower", "power/powerOff", {}, function () {}, function () {
+          callLunaService("luna://com.webos.service.tv.power", "turnOffScreen", {});
+        });
+      });
+      return;
+    }
     if (keyName === "chup") {
       callLunaService("luna://com.webos.service.tv.channel", "channelUp", {}, function () {}, function () {
         callLunaService("luna://com.webos.service.networkinput", "controls/channelUp", {});
@@ -1534,6 +1559,10 @@
 
   function setupRemoteKeyboardNavigation() {
     window.addEventListener("keydown", function (e) {
+      if ((new Date().getTime() - appLaunchTimestamp) < 1800) {
+        e.preventDefault();
+        return;
+      }
       var code = e.keyCode || e.which;
       handleKeyCode(code, e);
     });

@@ -18,6 +18,8 @@
     "application.operation",
     "tv.input",
     "tv.channel",
+    "tv.power",
+    "power.operation",
     "audio.operation",
     "time.query"
   ]

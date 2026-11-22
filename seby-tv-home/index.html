@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1920, height=1080, initial-scale=1.0, user-scalable=no" />
+  <title>Seby TV Home</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="theme-aurora">
+  <!-- Custom Wallpaper Layer -->
+  <div class="wallpaper-layer" id="wallpaperLayer"></div>
+
+  <!-- Dynamic Ambient Background -->
+  <div class="ambient-bg" id="ambientBg">
+    <div class="orb orb-1" id="orb1"></div>
+    <div class="orb orb-2" id="orb2"></div>
+    <div class="orb orb-3" id="orb3"></div>
+  </div>
+
+  <!-- Custom Free-Floating Texts / Widgets Layer -->
+  <div class="custom-texts-layer" id="customTextsLayer"></div>
+
+  <!-- Main 1920x1080 Container -->
+  <div class="app-shell" id="appShell">
+    <!-- Top Status Bar -->
+    <header class="topbar" id="topbarEl">
+      <div class="brand-area">
+        <div class="avatar-badge" id="avatarBadge">S</div>
+        <div class="brand-text">
+          <div class="greeting" id="greetingText">Bună seara, Seby</div>
+          <div class="device-meta" id="deviceMetaText">LG 43UM7450PLA &bull; Custom Home</div>
+        </div>
+      </div>
+
+      <div class="top-actions">
+        <button class="pill-btn focusable" data-action="open-cast-hub" id="btnCastHub" tabindex="0">
+          <svg viewBox="0 0 24 24" class="pill-icon"><path fill="currentColor" d="M21 3H3c-1.1 0-2 .9-2 2v3h2V5h18v14h-7v2h7c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM1 18v3h3c0-1.66-1.34-3-3-3zm0-4v2c2.76 0 5 2.24 5 5h2c0-3.87-3.13-7-7-7zm0-4v2c4.97 0 9 4.03 9 9h2c0-6.08-4.93-11-11-11z"/></svg>
+          <span>PC Cast &amp; Media</span>
+        </button>
+
+        <button class="pill-btn focusable" data-action="toggle-edit" id="btnEditOrder" tabindex="0">
+          <svg viewBox="0 0 24 24" class="pill-icon"><path fill="currentColor" d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1.003 1.003 0 0 0 0-1.42l-2.34-2.34a1.003 1.003 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.82z"/></svg>
+          <span id="editBtnLabel">Aranjează Carduri</span>
+        </button>
+
+        <button class="pill-btn focusable" data-action="cycle-theme" id="btnTheme" tabindex="0">
+          <svg viewBox="0 0 24 24" class="pill-icon"><path fill="currentColor" d="M12 3a9 9 0 1 0 9 9c0-.46-.04-.92-.1-1.36a5.389 5.389 0 0 1-4.4 2.26 5.403 5.403 0 0 1-3.14-9.8c-.44-.06-.9-.1-1.36-.1z"/></svg>
+          <span id="themeBtnLabel">Fundal: Aurora</span>
+        </button>
+
+        <button class="pill-btn pill-classic focusable" data-action="classic-mode" id="btnClassicMode" tabindex="0">
+          <svg viewBox="0 0 24 24" class="pill-icon"><path fill="currentColor" d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg>
+          <span>Meniul Original LG</span>
+        </button>
+
+        <div class="weather-widget" id="weatherWidget" title="Vremea curentă">
+          <div class="weather-temp" id="weatherTemp">--°C</div>
+          <div class="weather-city" id="weatherDesc">București</div>
+        </div>
+
+        <div class="clock-widget" id="clockWidget">
+          <div class="clock-time" id="clockTime">20:00</div>
+          <div class="clock-date" id="clockDate">Duminică, 22 Noiembrie</div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Hero Spotlight Preview -->
+    <section class="hero-banner" id="heroBanner">
+      <div class="hero-content">
+        <div class="hero-tag" id="heroTag">ACCES RAPID &bull; TASTA 1</div>
+        <h1 class="hero-title" id="heroTitle">YouTube</h1>
+        <p class="hero-desc" id="heroDesc">Deschide instant YouTube pe televizorul tău LG.</p>
+        <div class="ticker-note hidden" id="tickerNoteBox"></div>
+      </div>
+      <div class="hero-shortcut-hint" id="heroShortcutHint">
+        <div class="key-cap" id="heroKeyCap">OK</div>
+        <span>pentru a deschide</span>
+      </div>
+    </section>
+
+    <!-- Main Favorite Cards Row -->
+    <section class="section-block" id="mainCardsSection">
+      <div class="section-header">
+        <h2 class="section-title" id="mainSectionTitle">Aplicații &amp; Intrări Principale</h2>
+        <span class="section-subtitle" id="editHintText">Folosește săgețile, rotița Magic Remote sau tastele 1-6</span>
+      </div>
+
+      <div class="cards-grid" id="mainCardsGrid"></div>
+    </section>
+
+    <!-- Secondary Dock: All Installed TV Apps + System Utilities -->
+    <section class="section-block dock-block" id="dockSection">
+      <div class="section-header">
+        <h2 class="section-title">Toate Aplicațiile de pe TV &amp; Legături PC</h2>
+        <span class="section-subtitle" id="tvStatusIndicator">Detectare aplicații webOS...</span>
+      </div>
+
+      <div class="dock-row" id="secondaryDockRow"></div>
+    </section>
+
+    <!-- Bottom Legend Bar + PC Live Monitor -->
+    <footer class="bottom-bar" id="bottomBarEl">
+      <div class="legend-group">
+        <span class="legend-item"><kbd>OK</kbd> Deschide</span>
+        <span class="legend-item"><kbd>1</kbd> - <kbd>6</kbd> Lansare Directă</span>
+        <span class="legend-item"><kbd>BACK</kbd> Opțiuni / Ieșire</span>
+      </div>
+      <div class="legend-group" id="pcLiveTelemetry">
+        <span class="status-dot" id="pcBridgeDot"></span>
+        <span id="pcBridgeStatus">PC Studio: Se caută conexiunea LAN...</span>
+      </div>
+    </footer>
+  </div>
+
+  <!-- ====================================================================
+       FULLSCREEN CAST RECEIVER OVERLAY (VIDEO, AUDIO, PHOTO, SCREEN MIRROR)
+       ==================================================================== -->
+  <div class="cast-overlay hidden" id="castOverlay">
+    <div class="cast-topbar">
+      <div class="cast-badge-group">
+        <span class="cast-live-pill">LIVE CAST DE PE PC</span>
+        <span class="cast-media-title" id="castMediaTitle">Redare Media</span>
+      </div>
+      <div class="cast-controls-hint">
+        <span><kbd>OK</kbd> Pauză/Play</span>
+        <span><kbd>&larr;</kbd> <kbd>&rarr;</kbd> Derulare 15s</span>
+        <span><kbd>BACK</kbd> Închide Cast</span>
+        <button class="pill-btn cast-close-btn" id="btnCloseCast">Închide Cast</button>
+      </div>
+    </div>
+
+    <div class="cast-stage">
+      <video id="castVideoPlayer" class="cast-media-el hidden" controls autoplay></video>
+      <img id="castImageViewer" class="cast-media-el hidden" alt="Cast Image" />
+      <iframe id="castIframeViewer" class="cast-media-el hidden" frameborder="0" allowfullscreen></iframe>
+    </div>
+  </div>
+
+  <!-- Modal: Return to Original LG Menu / Exit -->
+  <div class="modal-backdrop hidden" id="classicModal">
+    <div class="modal-card">
+      <div class="modal-badge">100% REVERSIBIL</div>
+      <h2>Revenire la Meniul Original LG</h2>
+      <p>
+        Acest Custom Home rulează ca o aplicație sigură și <strong>nu a șters nimic</strong> din televizorul tău.
+        Poți oricând să ieși la canalele TV, să deschizi meniul clasic LG sau să dezinstalezi acest meniu.
+      </p>
+
+      <div class="modal-options">
+        <button class="modal-btn primary focusable-modal" data-modal-action="exit-to-tv" tabindex="0">
+          <div class="m-btn-title">Ieși acum la TV Live / Meniul Clasic LG</div>
+          <div class="m-btn-sub">Închide Seby TV Home și revine imediat la emisia TV normală</div>
+        </button>
+
+        <button class="modal-btn focusable-modal" data-modal-action="open-lg-settings" tabindex="0">
+          <div class="m-btn-title">Deschide Setările Oficiale LG</div>
+          <div class="m-btn-sub">Intră direct în meniul de configurare al televizorului</div>
+        </button>
+
+        <button class="modal-btn focusable-modal" data-modal-action="cancel" tabindex="0">
+          <div class="m-btn-title">Rămâi în Seby Custom Home</div>
+          <div class="m-btn-sub">Înapoi la ecranul tău personalizat</div>
+        </button>
+      </div>
+
+      <div class="uninstall-info">
+        <strong>Control direct de pe PC sau Telefon (Seby TV Studio):</strong><br/>
+        Deschide pe PC sau telefon <code>http://192.168.1.247:8765</code> pentru a schimba live cardurile, culorile, rotunjimile, pozițiile, textele, pentru a face <strong>Cast la ecrane/filme/poze</strong> sau pentru a dezinstala cu 1 click.
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="toast hidden" id="toastMsg"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>

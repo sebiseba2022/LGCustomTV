@@ -1,0 +1,23 @@
+{
+  "name": "Seby TV Studio - LG webOS Customizer & Cast",
+  "short_name": "Seby TV Studio",
+  "description": "Customizează meniul LG webOS în timp real și fă Cast la ecrane, filme și poze de pe PC sau Telefon.",
+  "start_url": "./studio_ui.html",
+  "display": "standalone",
+  "background_color": "#f8fafc",
+  "theme_color": "#0b2545",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "largeIcon.png",
+      "sizes": "130x130",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon.png",
+      "sizes": "80x80",
+      "type": "image/png"
+    }
+  ]
+}

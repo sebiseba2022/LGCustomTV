@@ -1,0 +1,1452 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#0b2545" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Seby TV Studio" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" type="image/png" href="largeIcon.png" />
+  <link rel="apple-touch-icon" href="largeIcon.png" />
+  <title>Seby TV Studio &bull; Customizer, Layout Designer &amp; LAN Cast</title>
+  <style>
+    /* ======================================================================
+       Minimalist Clean Design System (Inspired by ULBS Platform Architecture)
+       Custom Emerald-Teal & Deep Navy Palette
+       ====================================================================== */
+    :root {
+      --color-brand-navy: #0b2545;
+      --color-brand-teal: #0d9488;
+      --color-brand-teal-hover: #0f766e;
+      --color-brand-soft: #ccfbf1;
+      --color-accent-indigo: #4f46e5;
+      --color-success: #16a34a;
+      --color-warning: #d97706;
+      --color-danger: #dc2626;
+      --color-background: #f8fafc;
+      --color-surface: #ffffff;
+      --color-surface-muted: #f1f5f9;
+      --color-border: #e2e8f0;
+      --color-border-strong: #cbd5e1;
+      --color-text-primary: #0f172a;
+      --color-text-muted: #64748b;
+      --radius-sm: 0.375rem;
+      --radius-md: 0.5rem;
+      --radius-lg: 0.75rem;
+      --radius-xl: 1rem;
+      --font-sans: "Aptos", "Segoe UI Variable", "Trebuchet MS", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --elevation-1: 0 1px 2px rgba(11, 37, 69, 0.06), 0 1px 1px rgba(11, 37, 69, 0.04);
+      --elevation-2: 0 6px 18px rgba(11, 37, 69, 0.10), 0 2px 6px rgba(11, 37, 69, 0.06);
+      --elevation-3: 0 14px 30px rgba(11, 37, 69, 0.14), 0 4px 10px rgba(11, 37, 69, 0.08);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: var(--color-background);
+      color: var(--color-text-primary);
+      font-family: var(--font-sans);
+      line-height: 1.45;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding-bottom: 70px;
+    }
+
+    /* Top Minimalist Header */
+    .topbar {
+      background: var(--color-brand-navy);
+      color: #ffffff;
+      padding: 0.85rem 1.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      box-shadow: var(--elevation-2);
+    }
+    .brand-group { display: flex; align-items: center; gap: 0.85rem; }
+    .brand-logo {
+      width: 40px; height: 40px;
+      border-radius: var(--radius-md);
+      background: linear-gradient(135deg, #14b8a6, #0284c7);
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: 1.25rem; color: #fff;
+    }
+    .brand-title { font-size: 1.15rem; font-weight: 700; letter-spacing: -0.2px; }
+    .brand-sub { font-size: 0.78rem; color: #94a3b8; }
+
+    .header-controls { display: flex; align-items: center; gap: 0.65rem; flex-wrap: wrap; }
+    .status-badge {
+      display: inline-flex; align-items: center; gap: 0.45rem;
+      padding: 0.4rem 0.85rem;
+      border-radius: 999px;
+      background: rgba(20, 184, 166, 0.16);
+      border: 1px solid rgba(45, 212, 191, 0.35);
+      color: #5eead4;
+      font-size: 0.8rem; font-weight: 600;
+    }
+    .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #14b8a6; }
+
+    /* Clean Buttons */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 0.45rem;
+      padding: 0.55rem 1rem;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--color-border-strong);
+      background: var(--color-surface);
+      color: var(--color-text-primary);
+      font-family: inherit;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.16s ease;
+      box-shadow: var(--elevation-1);
+    }
+    .btn:hover { background: var(--color-surface-muted); border-color: #94a3b8; }
+    .btn-primary {
+      background: var(--color-brand-teal);
+      border-color: var(--color-brand-teal);
+      color: #ffffff;
+    }
+    .btn-primary:hover { background: var(--color-brand-teal-hover); border-color: var(--color-brand-teal-hover); }
+    .btn-navy {
+      background: var(--color-brand-navy);
+      border-color: var(--color-brand-navy);
+      color: #ffffff;
+    }
+    .btn-navy:hover { background: #133863; }
+    .btn-danger {
+      background: #fef2f2;
+      border-color: #fecaca;
+      color: var(--color-danger);
+    }
+    .btn-danger:hover { background: var(--color-danger); color: #ffffff; border-color: var(--color-danger); }
+
+    /* Main 3-Column Layout */
+    .main-grid {
+      max-width: 1560px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 1.5rem;
+      display: grid;
+      grid-template-columns: 245px 1fr 430px;
+      gap: 1.5rem;
+      align-items: start;
+    }
+    @media (max-width: 1280px) {
+      .main-grid { grid-template-columns: 220px 1fr; }
+      .preview-sidebar { grid-column: 1 / -1; position: static !important; }
+    }
+    @media (max-width: 780px) {
+      .main-grid { grid-template-columns: 1fr; padding: 1rem; }
+      .sidebar-nav { display: none; }
+    }
+
+    /* Sidebar Navigation */
+    .sidebar-card {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-xl);
+      padding: 1rem;
+      box-shadow: var(--elevation-1);
+      position: sticky;
+      top: 78px;
+    }
+    .nav-list { display: flex; flex-direction: column; gap: 0.35rem; }
+    .nav-item {
+      width: 100%;
+      text-align: left;
+      padding: 0.7rem 0.9rem;
+      border-radius: var(--radius-md);
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--color-text-muted);
+      font-family: inherit;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: space-between;
+      transition: all 0.15s ease;
+    }
+    .nav-item:hover { background: var(--color-surface-muted); color: var(--color-text-primary); }
+    .nav-item.active {
+      background: var(--color-brand-soft);
+      color: #0f766e;
+      border-color: #99f6e4;
+      font-weight: 700;
+    }
+
+    .conn-box {
+      margin-top: 1.25rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--color-border);
+    }
+    .conn-box h4 {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.7px;
+      color: var(--color-text-muted);
+      margin-bottom: 0.75rem;
+    }
+
+    /* Surface Cards */
+    .surface-card {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-xl);
+      padding: 1.5rem;
+      margin-bottom: 1.25rem;
+      box-shadow: var(--elevation-1);
+    }
+    .surface-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-bottom: 1.25rem;
+      padding-bottom: 0.85rem;
+      border-bottom: 1px solid var(--color-border);
+    }
+    .surface-header h2 { font-size: 1.25rem; font-weight: 700; color: var(--color-brand-navy); }
+    .surface-header p { font-size: 0.875rem; color: var(--color-text-muted); margin-top: 0.2rem; }
+
+    /* Form Controls */
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(195px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    .field { display: flex; flex-direction: column; gap: 0.35rem; }
+    .field label {
+      font-size: 0.76rem;
+      font-weight: 700;
+      color: var(--color-text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      display: flex;
+      justify-content: space-between;
+    }
+    .field input[type="text"],
+    .field input[type="number"],
+    .field select {
+      padding: 0.6rem 0.8rem;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--color-border-strong);
+      background: var(--color-surface);
+      color: var(--color-text-primary);
+      font-family: inherit;
+      font-size: 0.9rem;
+      outline: none;
+    }
+    .field input:focus, .field select:focus {
+      border-color: var(--color-brand-teal);
+      box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.14);
+    }
+    .field input[type="range"] {
+      width: 100%;
+      accent-color: var(--color-brand-teal);
+      cursor: pointer;
+    }
+    .field input[type="color"] {
+      width: 100%;
+      height: 38px;
+      padding: 2px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--color-border-strong);
+      background: var(--color-surface);
+      cursor: pointer;
+    }
+
+    /* Sub-cards inside surfaces */
+    .sub-card {
+      background: var(--color-surface-muted);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      padding: 1.15rem;
+      margin-bottom: 1rem;
+    }
+    .sub-card h3 { font-size: 1rem; font-weight: 700; color: var(--color-brand-navy); margin-bottom: 0.35rem; }
+    .sub-card p { font-size: 0.84rem; color: var(--color-text-muted); margin-bottom: 0.85rem; }
+
+    /* Cards List Editor */
+    .card-item-row {
+      background: var(--color-surface-muted);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      padding: 1rem;
+      margin-bottom: 0.85rem;
+      display: grid;
+      grid-template-columns: 42px 1fr auto;
+      gap: 1rem;
+      align-items: center;
+    }
+    @media (max-width: 640px) {
+      .card-item-row { grid-template-columns: 1fr; }
+    }
+    .card-badge-num {
+      width: 42px; height: 42px;
+      border-radius: var(--radius-md);
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-weight: 800; font-size: 1rem;
+    }
+
+    /* Live Preview Sticky Right Column */
+    .preview-sidebar {
+      position: sticky;
+      top: 78px;
+    }
+    .preview-frame-container {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      background: #06080f;
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      border: 2px solid var(--color-brand-navy);
+      position: relative;
+      box-shadow: var(--elevation-2);
+    }
+    .preview-frame-container iframe {
+      width: 1920px;
+      height: 1080px;
+      border: 0;
+      transform-origin: 0 0;
+    }
+    .console-box {
+      margin-top: 1rem;
+      background: var(--color-brand-navy);
+      color: #a7f3d0;
+      border-radius: var(--radius-md);
+      padding: 0.85rem;
+      font-family: Consolas, monospace;
+      font-size: 0.76rem;
+      max-height: 190px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+    }
+
+    /* Remote D-Pad */
+    .remote-dpad {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.55rem;
+      max-width: 280px;
+      margin: 0 auto 1.25rem auto;
+    }
+
+    /* Mobile Bottom Dock (ULBS Mobile Style) */
+    .mobile-dock {
+      display: none;
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      height: 60px;
+      background: var(--color-surface);
+      border-top: 1px solid var(--color-border);
+      box-shadow: 0 -4px 16px rgba(11, 37, 69, 0.08);
+      z-index: 50;
+      justify-content: space-around;
+      align-items: center;
+    }
+    .mobile-dock button {
+      background: none; border: none;
+      color: var(--color-text-muted);
+      font-size: 0.72rem; font-weight: 700;
+      display: flex; flex-direction: column; align-items: center; gap: 2px;
+      cursor: pointer;
+    }
+    .mobile-dock button.active { color: var(--color-brand-teal); }
+    @media (max-width: 780px) {
+      .mobile-dock { display: flex; }
+    }
+
+    .tab-pane { display: none; }
+    .tab-pane.active { display: block; }
+  </style>
+</head>
+<body>
+  <!-- Top Header -->
+  <header class="topbar">
+    <div class="brand-group">
+      <div class="brand-logo">S</div>
+      <div>
+        <div class="brand-title">Seby TV Studio &bull; LG webOS Platform</div>
+        <div class="brand-sub">PC &amp; Mobile Live Customizer, Layout Engine &amp; LAN Screen Cast</div>
+      </div>
+    </div>
+
+    <div class="header-controls">
+      <div class="status-badge">
+        <span class="status-dot"></span>
+        <span id="headerTvIp">TV: 192.168.1.242</span>
+      </div>
+      <button class="btn" id="pwaInstallBtn" style="display:none;" onclick="installPwaApp()">📲 Instalează Aplicația (PC/Telefon)</button>
+      <button class="btn" onclick="applyLiveSyncOnly()">⚡ Live Sync</button>
+      <button class="btn btn-primary" onclick="deployPermanentIpk()">🚀 Deploy .IPK pe TV</button>
+    </div>
+  </header>
+
+  <!-- Main Workspace -->
+  <div class="main-grid">
+    <!-- Left Sidebar -->
+    <aside class="sidebar-nav">
+      <div class="sidebar-card">
+        <div class="nav-list">
+          <button class="nav-item active" onclick="switchTab('pane-cast', this)">
+            <span>📺 Cast Ecran &amp; Media</span>
+            <span>&rsaquo;</span>
+          </button>
+          <button class="nav-item" onclick="switchTab('pane-style', this)">
+            <span>🎨 Culori, Rotunjimi &amp; Efecte</span>
+            <span>&rsaquo;</span>
+          </button>
+          <button class="nav-item" onclick="switchTab('pane-texts', this)">
+            <span>✍️ Texte &amp; Poziționare Ecran</span>
+            <span>&rsaquo;</span>
+          </button>
+          <button class="nav-item" onclick="switchTab('pane-cards', this)">
+            <span>🃏 Carduri &amp; Aplicații TV</span>
+            <span>&rsaquo;</span>
+          </button>
+          <button class="nav-item" onclick="switchTab('pane-remote', this)">
+            <span>🎮 Telecomandă &amp; Deploy</span>
+            <span>&rsaquo;</span>
+          </button>
+          <button class="nav-item" onclick="switchTab('pane-downloads', this)">
+            <span>📥 Descărcare PC &amp; Telefon</span>
+            <span>&rsaquo;</span>
+          </button>
+        </div>
+
+        <div class="conn-box">
+          <h4>Configurare Conexiune TV</h4>
+          <div class="field" style="margin-bottom:0.6rem;">
+            <label>IP Televizor LG</label>
+            <input type="text" id="cfgTvIp" value="192.168.1.242" oninput="syncFormToConfig()" />
+          </div>
+          <div class="field" style="margin-bottom:0.6rem;">
+            <label>Passphrase DevMode</label>
+            <input type="text" id="cfgTvPass" value="1DE7AB" oninput="syncFormToConfig()" />
+          </div>
+          <div class="field" style="margin-bottom:0.75rem;">
+            <label>IP Server PC (LAN)</label>
+            <input type="text" id="cfgPcIp" value="192.168.1.247" oninput="syncFormToConfig()" />
+          </div>
+          <button class="btn btn-navy" style="width:100%;" onclick="openCustomHomeOnTv()">
+            🏠 Deschide Seby Home pe TV
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Center Panels -->
+    <main>
+      <!-- PANE 1: LAN CAST & MULTI-MONITOR SCREEN MIRROR -->
+      <section class="tab-pane active" id="pane-cast">
+        <div class="surface-card">
+          <div class="surface-header">
+            <div>
+              <h2>📺 LAN Cast &amp; Partajare Ecran Multi-Monitor (Fără Wi-Fi pe PC)</h2>
+              <p>Selectează ce monitor sau ce fereastră vrei să partajezi live pe televizor, sau trimite filme și poze direct prin cablu LAN.</p>
+            </div>
+          </div>
+
+          <!-- 1. Select Screen / Window to Mirror (WebRTC getDisplayMedia -> Live TV) -->
+          <div class="sub-card">
+            <h3>🖥️ Opțiunea 1: Selectează Ecranul / Monitorul sau Fereastra (Picker Interactiv)</h3>
+            <p>
+              Apasă butonul de mai jos pentru a deschide selectorul Windows/Browser: poți alege <strong>Monitorul 1</strong>, <strong>Monitorul 2</strong> sau <strong>orice fereastră/tab</strong>, iar imaginea este trimisă în timp real pe televizor (fără ecran negru!):
+            </p>
+            <div style="display:flex; flex-wrap:wrap; gap:0.65rem; align-items:center;">
+              <button class="btn btn-primary" onclick="startInteractiveScreenPickerCast()">
+                🖥️ Alege Ce Ecran / Fereastră să Trimiți pe TV
+              </button>
+              <button class="btn btn-danger" onclick="stopAllCast()">⏹️ Oprește Cast</button>
+              <span id="pickerCastStatus" style="font-size:0.82rem; font-weight:600; color:var(--color-brand-teal);"></span>
+            </div>
+          </div>
+
+          <!-- 2. Direct Server Monitor Selection (Monitor 1 / Monitor 2 / All Screens) -->
+          <div class="sub-card">
+            <h3>🖵 Opțiunea 2: Cast Direct Monitor PC prin Serverul Local</h3>
+            <p>Sau alege direct numărul monitorului conectat la placa video și apasă Start:</p>
+            <div style="display:flex; flex-wrap:wrap; gap:0.65rem; align-items:center;">
+              <select id="serverMonitorSelect" style="padding:0.55rem 0.85rem; border-radius:var(--radius-md); border:1px solid var(--color-border-strong); font-weight:600;">
+                <option value="1">Monitor 1 (Principal - 1920x1080)</option>
+                <option value="2">Monitor 2 (Secundar - 1920x1080)</option>
+                <option value="0">Toate Monitoarele Extinse (3840x1080)</option>
+              </select>
+              <button class="btn btn-navy" onclick="startServerMonitorCast()">▶️ Trimite Monitorul Selectat pe TV</button>
+              <button class="btn" onclick="switchActiveMonitorLive()">🔄 Schimbă Monitorul în Timpul Cast-ului</button>
+            </div>
+          </div>
+
+          <!-- 3. Cast Video / Audio / Photo File from PC or Phone -->
+          <div class="sub-card">
+            <h3>🎬 Trimite Film (MP4/MKV), Muzică (MP3) sau Poze de pe PC ori Telefon</h3>
+            <p>Selectează un fișier de pe dispozitivul tău (PC sau Telefon) sau lipește calea unui film mare de pe hard disk:</p>
+            <div style="display:flex; flex-wrap:wrap; gap:0.65rem; align-items:center; margin-bottom:0.85rem;">
+              <input type="file" id="castFileInput" accept="video/*,audio/*,image/*" />
+              <button class="btn btn-primary" onclick="uploadAndCastFile()">📡 Trimite Fișierul pe TV</button>
+            </div>
+            <div style="display:flex; gap:0.65rem; flex-wrap:wrap;">
+              <input type="text" id="directFilePathInput" placeholder="Cale directă pe PC (ex: C:\Users\chitu\Videos\film.mp4)" style="flex:1; min-width:220px; padding:0.55rem 0.8rem; border-radius:var(--radius-md); border:1px solid var(--color-border-strong);" />
+              <button class="btn btn-navy" onclick="castDirectDiskPath()">▶️ Redă Calea Direct de pe Disk</button>
+            </div>
+          </div>
+
+          <!-- Player Controls -->
+          <div style="display:flex; flex-wrap:wrap; gap:0.55rem; align-items:center;">
+            <strong style="font-size:0.85rem; margin-right:0.5rem;">Control Player TV:</strong>
+            <button class="btn" onclick="sendCastControl('toggle_play')">⏯️ Play / Pauză</button>
+            <button class="btn" onclick="sendCastControl('seek_rel', -30)">⏪ -30s</button>
+            <button class="btn" onclick="sendCastControl('seek_rel', -15)">⏪ -15s</button>
+            <button class="btn" onclick="sendCastControl('seek_rel', 15)">⏩ +15s</button>
+            <button class="btn" onclick="sendCastControl('seek_rel', 60)">⏩ +1m</button>
+            <button class="btn btn-danger" onclick="stopAllCast()">⏹️ Închide Cast</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- PANE 2: COLORS, ROUNDNESS (RADII), EFFECTS & LAYOUT -->
+      <section class="tab-pane" id="pane-style">
+        <div class="surface-card">
+          <div class="surface-header">
+            <div>
+              <h2>🎨 Stilizare Completă: Culori, Rotunjimi (Round-uri), Efecte &amp; Layout</h2>
+              <p>Modifică orice parametru vizual. Fiecare slider actualizează instant interfața televizorului și previzualizarea din dreapta.</p>
+            </div>
+            <button class="btn" onclick="resetStyleDefaults()">↺ Resetează Stilul</button>
+          </div>
+
+          <!-- Theme & Background Colors -->
+          <div class="sub-card">
+            <h3>🌈 Temă &amp; Culori Lumini Ambientale</h3>
+            <div class="form-grid">
+              <div class="field">
+                <label>Temă Predefinită</label>
+                <select id="cfgTheme" onchange="syncFormToConfig()">
+                  <option value="theme-aurora">Aurora Navy</option>
+                  <option value="theme-oled">OLED Pure Black</option>
+                  <option value="theme-sunset">Sunset Crimson</option>
+                  <option value="theme-cyber">Cyber Teal</option>
+                  <option value="theme-emerald">Emerald Forest</option>
+                  <option value="theme-custom">Culori Custom (Mai jos)</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>Fundal Principal</label>
+                <input type="color" id="stBgPrimary" value="#06080f" oninput="syncFormToConfig()" />
+              </div>
+              <div class="field">
+                <label>Fundal Secundar (Gradient)</label>
+                <input type="color" id="stBgSecondary" value="#131b36" oninput="syncFormToConfig()" />
+              </div>
+              <div class="field">
+                <label>Lumină Ambientală 1 (Stânga)</label>
+                <input type="color" id="stOrb1" value="#ef4444" oninput="syncFormToConfig()" />
+              </div>
+              <div class="field">
+                <label>Lumină Ambientală 2 (Dreapta)</label>
+                <input type="color" id="stOrb2" value="#3b82f6" oninput="syncFormToConfig()" />
+              </div>
+              <div class="field">
+                <label>Lumină Ambientală 3 (Centru)</label>
+                <input type="color" id="stOrb3" value="#10b981" oninput="syncFormToConfig()" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Roundness (Border Radius), Blur, Glass & Effects -->
+          <div class="sub-card">
+            <h3>✨ Rotunjimi (Round-uri la Carduri), Efect Sticlă (Blur) &amp; Animații</h3>
+            <div class="form-grid">
+              <div class="field">
+                <label><span>Rotunjime Carduri (Radius)</span><span id="valCardRadius">28px</span></label>
+                <input type="range" id="stCardRadius" min="0" max="60" step="1" value="28" oninput="syncFormToConfig()" />
+              </div>
+              <div class="field">
+                <label><span>Rotunjime Banner Hero</span><span id="valHeroRadius">30px</span></label>
+                <input type="range" id="stHeroRadius" min="0" max="60" step="1" value="30" oninput="syncFormToConfig()" />
+              </div>
+              <div class="field">
+                <label><span>Înălțime Carduri</span><span id="valCardHeight">295px</span></label>
+                <input type="range" id="stCardHeight" min="180" max="380" step="5" value="295" oninput="syncFormToConfig()" />
+              </div>
+              <div class="field">
+                <label><span>Spațiu între Carduri (Gap)</span><span id="valCardGap">20px</span></label>
+                <input type="range" id="stCardGap" min="6" max="48" step="2" value="20" oninput="syncFormToConfig()" />
+              </div>
+              <div class="field">
+                <label><span>Efect Sticlă Mată (Blur)</span><span id="valCardBlur">22px</span></label>
+                <input type="range" id="stCardBlur" min="0" max="50" step="1" value="22" oninput="syncFormToConfig()" />
+              </div>
+              <div class="field">
+                <label><span>Opacitate Carduri</span><span id="valCardBgOp">7%</span></label>
+                <input type="range" id="stCardBgOp" min="0.02" max="0.45" step="0.01" value="0.07" oninput="syncFormToConfig()" />
+              </div>
+              <div class="field">
+                <label><span>Intensitate Lumini Ambientale</span><span id="valOrbOp">42%</span></label>
+                <input type="range" id="stOrbOp" min="0" max="0.95" step="0.02" value="0.42" oninput="syncFormToConfig()" />
+              </div>
+              <div class="field">
+                <label><span>Zoom Card Selectat (Hover)</span><span id="valHoverScale">1.05x</span></label>
+                <input type="range" id="stHoverScale" min="1.0" max="1.15" step="0.01" value="1.05" oninput="syncFormToConfig()" />
+              </div>
+              <div class="field">
+                <label><span>Mărime Generală Fonturi</span><span id="valFontScale">100%</span></label>
+                <input type="range" id="stFontScale" min="0.75" max="1.30" step="0.05" value="1.0" oninput="syncFormToConfig()" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Screen Positioning & Section Visibility -->
+          <div class="sub-card">
+            <h3>📐 Poziționare Layout pe Ecran &amp; Elemente Afișate</h3>
+            <div class="form-grid">
+              <div class="field">
+                <label>Aliniere Verticală pe Ecran</label>
+                <select id="stLayoutAlign" onchange="syncFormToConfig()">
+                  <option value="space-between">Distribuit Uniform pe Ecran</option>
+                  <option value="center">Centrat pe Mijlocul Ecranului</option>
+                  <option value="flex-end">Grupat Jos (Stil Dock Minimalist)</option>
+                  <option value="flex-start">Grupat Sus</option>
+                </select>
+              </div>
+              <div class="field">
+                <label><span>Margine Stânga/Dreapta (Padding X)</span><span id="valPadX">76px</span></label>
+                <input type="range" id="stPadX" min="24" max="180" step="4" value="76" oninput="syncFormToConfig()" />
+              </div>
+              <div class="field">
+                <label><span>Margine Sus/Jos (Padding Y)</span><span id="valPadY">42px</span></label>
+                <input type="range" id="stPadY" min="16" max="120" step="4" value="42" oninput="syncFormToConfig()" />
+              </div>
+            </div>
+            <div style="display:flex; flex-wrap:wrap; gap:1.25rem; margin-top:0.5rem;">
+              <label style="display:flex; align-items:center; gap:6px; font-weight:600; font-size:0.88rem; cursor:pointer;">
+                <input type="checkbox" id="chkShowHero" checked onchange="syncFormToConfig()" /> Afișează Bannerul Hero Central
+              </label>
+              <label style="display:flex; align-items:center; gap:6px; font-weight:600; font-size:0.88rem; cursor:pointer;">
+                <input type="checkbox" id="chkShowDock" checked onchange="syncFormToConfig()" /> Afișează Dock-ul Secundar Jos
+              </label>
+              <label style="display:flex; align-items:center; gap:6px; font-weight:600; font-size:0.88rem; cursor:pointer;">
+                <input type="checkbox" id="chkShowWeather" checked onchange="syncFormToConfig()" /> Afișează Vremea
+              </label>
+              <label style="display:flex; align-items:center; gap:6px; font-weight:600; font-size:0.88rem; cursor:pointer;">
+                <input type="checkbox" id="chkShowClock" checked onchange="syncFormToConfig()" /> Afișează Ceasul
+              </label>
+            </div>
+          </div>
+
+          <!-- Custom Wallpaper -->
+          <div class="sub-card" style="margin-bottom:0;">
+            <h3>🖼️ Imagine de Fundal (Wallpaper Custom)</h3>
+            <div style="display:flex; flex-wrap:wrap; gap:0.65rem; align-items:center;">
+              <input type="file" id="wallpaperFileInput" accept="image/*" />
+              <button class="btn btn-primary" onclick="uploadCustomWallpaper()">🖼️ Aplică Poza ca Wallpaper</button>
+              <button class="btn btn-danger" onclick="clearCustomWallpaper()">✖ Folosește Gradient</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- PANE 3: TEXTS & FREE-FLOATING CUSTOM TEXT WIDGETS ON SCREEN -->
+      <section class="tab-pane" id="pane-texts">
+        <div class="surface-card">
+          <div class="surface-header">
+            <div>
+              <h2>✍️ Texte Header &amp; Texte Custom Poziționabile oriunde pe Ecran</h2>
+              <p>Modifică textele principale sau adaugă texte/etichete suplimentare cu coordonate X/Y exacte pe ecranul televizorului.</p>
+            </div>
+            <button class="btn btn-primary" onclick="addCustomFloatingText()">+ Adaugă Text Nou pe Ecran</button>
+          </div>
+
+          <div class="sub-card">
+            <h3>👤 Texte Principale (Salut, Subtitlu, Oraș Vreme, Notiță Fixată)</h3>
+            <div class="form-grid">
+              <div class="field">
+                <label>Numele Tău (Salut)</label>
+                <input type="text" id="cfgProfileName" value="Seby" oninput="syncFormToConfig()" />
+              </div>
+              <div class="field">
+                <label>Simbol / Literă Avatar</label>
+                <input type="text" id="cfgAvatarLetter" value="S" maxlength="2" oninput="syncFormToConfig()" />
+              </div>
+              <div class="field">
+                <label>Subtitlu Sub Salut</label>
+                <input type="text" id="cfgSubtitleText" value="LG 43UM7450PLA • Custom Home" oninput="syncFormToConfig()" />
+              </div>
+              <div class="field">
+                <label>Oraș Vreme</label>
+                <input type="text" id="cfgWeatherCity" value="București" oninput="syncFormToConfig()" />
+              </div>
+              <div class="field" style="grid-column: 1 / -1;">
+                <label>Notiță / Anunț Fixat în Bannerul Hero</label>
+                <input type="text" id="cfgTickerNote" placeholder="Ex: Meci diseară la 21:45 / Wi-Fi Oaspeți: SebyHome" oninput="syncFormToConfig()" />
+              </div>
+            </div>
+          </div>
+
+          <h3 style="font-size:1rem; font-weight:700; color:var(--color-brand-navy); margin-bottom:0.75rem;">
+            📌 Texte Suplimentare Poziționabile Liber pe Ecran (X% / Y%)
+          </h3>
+          <div id="customTextsContainer"></div>
+        </div>
+      </section>
+
+      <!-- PANE 4: CARDS EDITOR -->
+      <section class="tab-pane" id="pane-cards">
+        <div class="surface-card">
+          <div class="surface-header">
+            <div>
+              <h2>🃏 Editor Carduri &amp; Scurtături Aplicații TV</h2>
+              <p>Configurează titlul, subtitlul, categoria, descrierea din banner, culoarea și aplicația lansată pentru fiecare card.</p>
+            </div>
+            <button class="btn btn-primary" onclick="addNewCard()">+ Adaugă Card</button>
+          </div>
+
+          <div id="cardsEditorList"></div>
+        </div>
+      </section>
+
+      <!-- PANE 5: REMOTE CONTROL & DEPLOY -->
+      <section class="tab-pane" id="pane-remote">
+        <div class="surface-card">
+          <div class="surface-header">
+            <div>
+              <h2>🎮 Telecomandă Virtuală, Notificări Live &amp; Revenire la Original</h2>
+              <p>Controlează televizorul de pe PC sau telefon și instalează/dezinstalează cu 1 click.</p>
+            </div>
+          </div>
+
+          <div class="remote-dpad">
+            <div></div>
+            <button class="btn btn-navy" style="padding:0.9rem;" onclick="sendRemoteKey('up')">&uarr; SUS</button>
+            <div></div>
+            <button class="btn btn-navy" style="padding:0.9rem;" onclick="sendRemoteKey('left')">&larr; STÂNGA</button>
+            <button class="btn btn-primary" style="padding:0.9rem;" onclick="sendRemoteKey('ok')">OK</button>
+            <button class="btn btn-navy" style="padding:0.9rem;" onclick="sendRemoteKey('right')">DREAPTA &rarr;</button>
+            <div></div>
+            <button class="btn btn-navy" style="padding:0.9rem;" onclick="sendRemoteKey('down')">&darr; JOS</button>
+            <button class="btn" style="padding:0.9rem;" onclick="sendRemoteKey('back')">↩ BACK</button>
+          </div>
+
+          <div class="sub-card">
+            <h3>🚀 Lansare Directă pe TV</h3>
+            <div style="display:flex; flex-wrap:wrap; gap:0.5rem;">
+              <button class="btn btn-primary" onclick="openCustomHomeOnTv()">🏠 Seby TV Home</button>
+              <button class="btn" onclick="launchAppFromPc('youtube.leanback.v4', 'YouTube')">▶️ YouTube</button>
+              <button class="btn" onclick="launchAppFromPc('netflix', 'Netflix')">🎬 Netflix</button>
+              <button class="btn" onclick="launchAppFromPc('spotify-beehive', 'Spotify')">🎵 Spotify</button>
+              <button class="btn" onclick="launchAppFromPc('com.webos.app.livetv', 'Canale TV')">📺 Canale TV</button>
+              <button class="btn" onclick="launchAppFromPc('com.webos.app.hdmi1', 'HDMI 1')">🔌 HDMI 1</button>
+              <button class="btn" onclick="launchAppFromPc('com.webos.app.hdmi2', 'HDMI 2')">🔌 HDMI 2</button>
+              <button class="btn" onclick="launchAppFromPc('com.palm.app.settings', 'Setări LG')">⚙️ Setări LG</button>
+            </div>
+          </div>
+
+          <div class="sub-card">
+            <h3>💬 Trimite Notificare Instant pe Ecranul TV-ului</h3>
+            <div style="display:flex; gap:0.65rem;">
+              <input type="text" id="toastInputMsg" placeholder="Scrie un mesaj care va apărea pe televizor..." style="flex:1; padding:0.55rem 0.8rem; border-radius:var(--radius-md); border:1px solid var(--color-border-strong);" />
+              <button class="btn btn-primary" onclick="sendToastToTv()">Trimite Mesaj</button>
+            </div>
+          </div>
+
+          <div class="sub-card" style="margin-bottom:0;">
+            <h3>⚙️ Instalare Permanentă (.IPK) &amp; Revenire la Meniul Original LG</h3>
+            <div style="display:flex; flex-wrap:wrap; gap:0.75rem;">
+              <button class="btn btn-primary" onclick="deployPermanentIpk()">🚀 Compilează &amp; Instalează (.IPK) pe TV</button>
+              <button class="btn btn-danger" onclick="uninstallFromTv()">🗑️ Dezinstalează Seby Home (100% Original LG)</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- PANE 6: DOWNLOADS FOR PC & PHONE (SYNCED) -->
+      <section class="tab-pane" id="pane-downloads">
+        <div class="surface-card">
+          <div class="surface-header">
+            <div>
+              <h2>📥 Descărcare &amp; Instalare pe Calculator și Telefon (Sincronizate)</h2>
+              <p>Folosește aceeași aplicație atât pe PC cât și pe Telefon (Android / iOS). Orice modificare făcută pe telefon se vede instant pe PC și pe televizor!</p>
+            </div>
+          </div>
+
+          <div class="sub-card">
+            <h3>📱 1. Aplicația pentru Telefon (Android &amp; iPhone - PWA + Sincronizare Live)</h3>
+            <p>
+              Conectează telefonul la același Wi-Fi cu routerul tău și deschide în browserul telefonului adresa:
+              <br/><strong style="font-size:1.05rem; color:var(--color-brand-teal);" id="phoneAccessUrl">http://192.168.1.247:8765</strong>
+              <br/>Apoi apasă pe <strong>„📲 Instalează Aplicația”</strong> (sau <em>Add to Home Screen</em>). Aplicația de pe telefon este conectată la același nucleu ca cea de pe PC – orice update sau schimbare de culoare/card făcută pe telefon sau PC se sincronizează instant peste tot!
+            </p>
+          </div>
+
+          <div class="sub-card">
+            <h3>💻 2. Pachetul pentru Calculator (Windows) &amp; Pachetul TV (.IPK)</h3>
+            <p>Descarcă direct pachetul `.ipk` actualizat sau scriptul de pornire rapidă pe PC:</p>
+            <div style="display:flex; flex-wrap:wrap; gap:0.75rem;">
+              <a class="btn btn-primary" href="com.seby.customhome_1.0.0_all.ipk" download>📦 Descarcă Pachetul TV (.IPK)</a>
+              <a class="btn btn-navy" href="Porneste_Seby_TV_Studio.bat" download>💻 Descarcă Lansatorul PC (.BAT)</a>
+              <a class="btn" href="user_config.json" download>📄 Exportă Configurația (.JSON)</a>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Right Column: Live 1920x1080 Scaled Preview -->
+    <aside class="preview-sidebar">
+      <div class="surface-card" style="padding:1.15rem;">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:0.75rem;">
+          <strong style="font-size:0.92rem; color:var(--color-brand-navy);">Previzualizare TV Live (1920x1080)</strong>
+          <button class="btn" style="padding:0.3rem 0.65rem; font-size:0.78rem;" onclick="refreshPreviewIframe()">↻ Refresh</button>
+        </div>
+
+        <div class="preview-frame-container" id="previewWrap">
+          <iframe id="tvPreviewFrame" src="/tv-app/index.html"></iframe>
+        </div>
+
+        <div class="console-box" id="studioConsole">[Seby TV Studio] Conectat și sincronizat cu TV-ul (192.168.1.242).</div>
+      </div>
+    </aside>
+  </div>
+
+  <!-- Mobile Bottom Navigation Bar -->
+  <nav class="mobile-dock">
+    <button class="active" onclick="switchTab('pane-cast', this)"><span>📺</span><span>Cast</span></button>
+    <button onclick="switchTab('pane-style', this)"><span>🎨</span><span>Stil</span></button>
+    <button onclick="switchTab('pane-texts', this)"><span>✍️</span><span>Texte</span></button>
+    <button onclick="switchTab('pane-cards', this)"><span>🃏</span><span>Carduri</span></button>
+    <button onclick="switchTab('pane-remote', this)"><span>🎮</span><span>Control</span></button>
+  </nav>
+
+  <!-- Hidden video & canvas used for WebRTC Interactive Screen/Window Picker Cast -->
+  <video id="webrtcCaptureVideo" autoplay playsinline muted style="display:none;"></video>
+  <canvas id="webrtcCaptureCanvas" width="1280" height="720" style="display:none;"></canvas>
+
+  <script>
+    var currentConfig = null;
+    var deferredPwaPrompt = null;
+    var webrtcStream = null;
+    var webrtcPushTimer = null;
+
+    // Register Service Worker for PC & Mobile PWA installation
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("sw.js").catch(function () {});
+    }
+    window.addEventListener("beforeinstallprompt", function (e) {
+      e.preventDefault();
+      deferredPwaPrompt = e;
+      var btn = document.getElementById("pwaInstallBtn");
+      if (btn) btn.style.display = "inline-flex";
+    });
+    function installPwaApp() {
+      if (deferredPwaPrompt) {
+        deferredPwaPrompt.prompt();
+      }
+    }
+
+    function logMsg(msg) {
+      var el = document.getElementById("studioConsole");
+      if (!el) return;
+      var t = new Date().toLocaleTimeString();
+      el.textContent = "[" + t + "] " + msg + "\n" + el.textContent;
+    }
+
+    function scalePreviewIframe() {
+      var wrap = document.getElementById("previewWrap");
+      var iframe = document.getElementById("tvPreviewFrame");
+      if (!wrap || !iframe) return;
+      var scale = wrap.clientWidth / 1920;
+      iframe.style.transform = "scale(" + scale + ")";
+    }
+    window.addEventListener("resize", scalePreviewIframe);
+
+    function switchTab(paneId, btnEl) {
+      document.querySelectorAll(".tab-pane").forEach(function (p) { p.classList.remove("active"); });
+      document.querySelectorAll(".nav-item, .mobile-dock button").forEach(function (b) { b.classList.remove("active"); });
+      var target = document.getElementById(paneId);
+      if (target) target.classList.add("active");
+      if (btnEl) btnEl.classList.add("active");
+    }
+
+    /* ----------------------------------------------------------------------
+       Load & Sync Full Configuration (PC + Phone + TV)
+       ---------------------------------------------------------------------- */
+    function loadInitialConfig() {
+      fetch("/api/config")
+        .then(function (r) { return r.json(); })
+        .then(function (cfg) {
+          applyConfigToStudioForm(cfg);
+          scalePreviewIframe();
+        })
+        .catch(function () {
+          // Fallback for GitHub Pages static preview mode
+          fetch("user_config.json")
+            .then(function (r) { return r.json(); })
+            .then(function (cfg) {
+              applyConfigToStudioForm(cfg);
+              var iframe = document.getElementById("tvPreviewFrame");
+              if (iframe) iframe.src = "index.html";
+              scalePreviewIframe();
+            });
+        });
+    }
+
+    function applyConfigToStudioForm(cfg) {
+      currentConfig = cfg;
+      currentConfig.style = currentConfig.style || {};
+      currentConfig.custom_texts = currentConfig.custom_texts || [];
+
+      document.getElementById("cfgTvIp").value = cfg.tv_ip || "192.168.1.242";
+      document.getElementById("cfgTvPass").value = cfg.tv_passphrase || "1DE7AB";
+      document.getElementById("cfgPcIp").value = cfg.pc_ip || "192.168.1.247";
+      document.getElementById("headerTvIp").textContent = "TV: " + (cfg.tv_ip || "192.168.1.242");
+      var pUrl = document.getElementById("phoneAccessUrl");
+      if (pUrl) pUrl.textContent = "http://" + (cfg.pc_ip || "192.168.1.247") + ":" + (cfg.pc_port || 8765);
+
+      document.getElementById("cfgProfileName").value = cfg.profile_name || "Seby";
+      document.getElementById("cfgAvatarLetter").value = cfg.avatar_letter || "S";
+      document.getElementById("cfgSubtitleText").value = cfg.subtitle_text || "";
+      document.getElementById("cfgTheme").value = cfg.theme || "theme-aurora";
+      document.getElementById("cfgWeatherCity").value = cfg.weather_city || "București";
+      document.getElementById("cfgTickerNote").value = cfg.ticker_note || "";
+
+      document.getElementById("chkShowHero").checked = cfg.show_hero !== false;
+      document.getElementById("chkShowDock").checked = cfg.show_dock !== false;
+      document.getElementById("chkShowWeather").checked = cfg.show_weather !== false;
+      document.getElementById("chkShowClock").checked = cfg.show_clock !== false;
+
+      var st = currentConfig.style;
+      document.getElementById("stBgPrimary").value = st.bg_primary || "#06080f";
+      document.getElementById("stBgSecondary").value = st.bg_secondary || "#131b36";
+      document.getElementById("stOrb1").value = st.orb1_color || "#ef4444";
+      document.getElementById("stOrb2").value = st.orb2_color || "#3b82f6";
+      document.getElementById("stOrb3").value = st.orb3_color || "#10b981";
+      document.getElementById("stCardRadius").value = st.card_radius !== undefined ? st.card_radius : 28;
+      document.getElementById("stHeroRadius").value = st.hero_radius !== undefined ? st.hero_radius : 30;
+      document.getElementById("stCardHeight").value = st.card_height !== undefined ? st.card_height : 295;
+      document.getElementById("stCardGap").value = st.card_gap !== undefined ? st.card_gap : 20;
+      document.getElementById("stCardBlur").value = st.card_blur !== undefined ? st.card_blur : 22;
+      document.getElementById("stCardBgOp").value = st.card_bg_opacity !== undefined ? st.card_bg_opacity : 0.07;
+      document.getElementById("stOrbOp").value = st.orb_opacity !== undefined ? st.orb_opacity : 0.42;
+      document.getElementById("stHoverScale").value = st.hover_scale !== undefined ? st.hover_scale : 1.05;
+      document.getElementById("stFontScale").value = st.font_scale !== undefined ? st.font_scale : 1.0;
+      document.getElementById("stLayoutAlign").value = st.layout_align || "space-between";
+      document.getElementById("stPadX").value = st.shell_pad_x !== undefined ? st.shell_pad_x : 76;
+      document.getElementById("stPadY").value = st.shell_pad_y !== undefined ? st.shell_pad_y : 42;
+
+      updateStyleValueLabels();
+      renderCustomTextsEditor();
+      renderCardsEditor();
+    }
+
+    function updateStyleValueLabels() {
+      document.getElementById("valCardRadius").textContent = document.getElementById("stCardRadius").value + "px";
+      document.getElementById("valHeroRadius").textContent = document.getElementById("stHeroRadius").value + "px";
+      document.getElementById("valCardHeight").textContent = document.getElementById("stCardHeight").value + "px";
+      document.getElementById("valCardGap").textContent = document.getElementById("stCardGap").value + "px";
+      document.getElementById("valCardBlur").textContent = document.getElementById("stCardBlur").value + "px";
+      document.getElementById("valCardBgOp").textContent = Math.round(parseFloat(document.getElementById("stCardBgOp").value) * 100) + "%";
+      document.getElementById("valOrbOp").textContent = Math.round(parseFloat(document.getElementById("stOrbOp").value) * 100) + "%";
+      document.getElementById("valHoverScale").textContent = document.getElementById("stHoverScale").value + "x";
+      document.getElementById("valFontScale").textContent = Math.round(parseFloat(document.getElementById("stFontScale").value) * 100) + "%";
+      document.getElementById("valPadX").textContent = document.getElementById("stPadX").value + "px";
+      document.getElementById("valPadY").textContent = document.getElementById("stPadY").value + "px";
+    }
+
+    function syncFormToConfig() {
+      if (!currentConfig) return;
+      updateStyleValueLabels();
+
+      currentConfig.tv_ip = document.getElementById("cfgTvIp").value.trim();
+      currentConfig.tv_passphrase = document.getElementById("cfgTvPass").value.trim();
+      currentConfig.pc_ip = document.getElementById("cfgPcIp").value.trim();
+      currentConfig.profile_name = document.getElementById("cfgProfileName").value;
+      currentConfig.avatar_letter = document.getElementById("cfgAvatarLetter").value;
+      currentConfig.subtitle_text = document.getElementById("cfgSubtitleText").value;
+      currentConfig.theme = document.getElementById("cfgTheme").value;
+      currentConfig.weather_city = document.getElementById("cfgWeatherCity").value;
+      currentConfig.ticker_note = document.getElementById("cfgTickerNote").value;
+
+      currentConfig.show_hero = document.getElementById("chkShowHero").checked;
+      currentConfig.show_dock = document.getElementById("chkShowDock").checked;
+      currentConfig.show_weather = document.getElementById("chkShowWeather").checked;
+      currentConfig.show_clock = document.getElementById("chkShowClock").checked;
+
+      currentConfig.style = {
+        bg_primary: document.getElementById("stBgPrimary").value,
+        bg_secondary: document.getElementById("stBgSecondary").value,
+        orb1_color: document.getElementById("stOrb1").value,
+        orb2_color: document.getElementById("stOrb2").value,
+        orb3_color: document.getElementById("stOrb3").value,
+        card_radius: parseInt(document.getElementById("stCardRadius").value, 10),
+        hero_radius: parseInt(document.getElementById("stHeroRadius").value, 10),
+        card_height: parseInt(document.getElementById("stCardHeight").value, 10),
+        card_gap: parseInt(document.getElementById("stCardGap").value, 10),
+        card_blur: parseInt(document.getElementById("stCardBlur").value, 10),
+        card_bg_opacity: parseFloat(document.getElementById("stCardBgOp").value),
+        card_border_opacity: 0.14,
+        orb_opacity: parseFloat(document.getElementById("stOrbOp").value),
+        hover_scale: parseFloat(document.getElementById("stHoverScale").value),
+        font_scale: parseFloat(document.getElementById("stFontScale").value),
+        layout_align: document.getElementById("stLayoutAlign").value,
+        shell_pad_x: parseInt(document.getElementById("stPadX").value, 10),
+        shell_pad_y: parseInt(document.getElementById("stPadY").value, 10)
+      };
+
+      document.getElementById("headerTvIp").textContent = "TV: " + currentConfig.tv_ip;
+      saveConfigLive();
+    }
+
+    function resetStyleDefaults() {
+      currentConfig.style = {
+        bg_primary: "#06080f", bg_secondary: "#131b36",
+        orb1_color: "#ef4444", orb2_color: "#3b82f6", orb3_color: "#10b981",
+        orb_opacity: 0.42, card_radius: 28, hero_radius: 30, card_height: 295,
+        card_gap: 20, card_blur: 22, card_bg_opacity: 0.07, card_border_opacity: 0.14,
+        hover_scale: 1.05, font_scale: 1.0, layout_align: "space-between",
+        shell_pad_x: 76, shell_pad_y: 42
+      };
+      applyConfigToStudioForm(currentConfig);
+      saveConfigLive();
+    }
+
+    /* ----------------------------------------------------------------------
+       Custom Free-Floating Texts Editor (X% / Y% Screen Coordinates)
+       ---------------------------------------------------------------------- */
+    function renderCustomTextsEditor() {
+      var container = document.getElementById("customTextsContainer");
+      container.innerHTML = "";
+      var list = currentConfig.custom_texts || [];
+
+      if (!list.length) {
+        container.innerHTML = '<div class="sub-card"><p style="margin:0;">Niciun text suplimentar adăugat încă. Apasă pe <strong>+ Adaugă Text Nou pe Ecran</strong> pentru a plasa un titlu, motto, parolă Wi-Fi sau mesaj oriunde pe ecran.</p></div>';
+        return;
+      }
+
+      list.forEach(function (t, idx) {
+        var box = document.createElement("div");
+        box.className = "sub-card";
+        box.innerHTML =
+          '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.65rem;">' +
+            '<strong>Text #' + (idx + 1) + '</strong>' +
+            '<button class="btn btn-danger" style="padding:0.25rem 0.6rem; font-size:0.78rem;" onclick="removeCustomText(' + idx + ')">✖ Șterge</button>' +
+          '</div>' +
+          '<div class="form-grid" style="margin-bottom:0;">' +
+            '<div class="field"><label>Conținut Text</label><input type="text" value="' + (t.text || "") + '" oninput="updateCustomText(' + idx + ', \'text\', this.value)" /></div>' +
+            '<div class="field"><label>Poziție Orizontală X (' + (t.x || 50) + '%)</label><input type="range" min="5" max="95" value="' + (t.x || 50) + '" oninput="updateCustomText(' + idx + ', \'x\', parseInt(this.value,10))" /></div>' +
+            '<div class="field"><label>Poziție Verticală Y (' + (t.y || 12) + '%)</label><input type="range" min="4" max="95" value="' + (t.y || 12) + '" oninput="updateCustomText(' + idx + ', \'y\', parseInt(this.value,10))" /></div>' +
+            '<div class="field"><label>Mărime Font (' + (t.size || 24) + 'px)</label><input type="range" min="14" max="72" value="' + (t.size || 24) + '" oninput="updateCustomText(' + idx + ', \'size\', parseInt(this.value,10))" /></div>' +
+            '<div class="field"><label>Culoare Text</label><input type="color" value="' + (t.color || "#ffffff") + '" oninput="updateCustomText(' + idx + ', \'color\', this.value)" /></div>' +
+          '</div>';
+        container.appendChild(box);
+      });
+    }
+
+    function addCustomFloatingText() {
+      currentConfig.custom_texts = currentConfig.custom_texts || [];
+      currentConfig.custom_texts.push({
+        id: "txt_" + Date.now(),
+        text: "Seby Smart Cinema 4K",
+        x: 50,
+        y: 12,
+        size: 24,
+        color: "#38bdf8",
+        bg: "rgba(15, 23, 42, 0.78)"
+      });
+      renderCustomTextsEditor();
+      saveConfigLive();
+    }
+
+    function updateCustomText(idx, field, val) {
+      currentConfig.custom_texts[idx][field] = val;
+      if (field === "x" || field === "y" || field === "size") {
+        renderCustomTextsEditor();
+      }
+      saveConfigLive();
+    }
+
+    function removeCustomText(idx) {
+      currentConfig.custom_texts.splice(idx, 1);
+      renderCustomTextsEditor();
+      saveConfigLive();
+    }
+
+    /* ----------------------------------------------------------------------
+       Cards Editor
+       ---------------------------------------------------------------------- */
+    function renderCardsEditor() {
+      var list = document.getElementById("cardsEditorList");
+      list.innerHTML = "";
+      var cards = currentConfig.cards || [];
+
+      cards.forEach(function (c, idx) {
+        var row = document.createElement("div");
+        row.className = "card-item-row";
+        row.innerHTML =
+          '<div class="card-badge-num" style="background:' + (c.accentColor || "#0d9488") + '">' + (idx + 1) + '</div>' +
+          '<div class="form-grid" style="margin-bottom:0;">' +
+            '<div class="field"><label>Titlu Card</label><input type="text" value="' + (c.title || "") + '" oninput="updateCardField(' + idx + ', \'title\', this.value)" /></div>' +
+            '<div class="field"><label>Subtitlu</label><input type="text" value="' + (c.subtitle || "") + '" oninput="updateCardField(' + idx + ', \'subtitle\', this.value)" /></div>' +
+            '<div class="field"><label>Categorie</label><input type="text" value="' + (c.category || "") + '" oninput="updateCardField(' + idx + ', \'category\', this.value)" /></div>' +
+            '<div class="field"><label>App ID webOS / URL</label><input type="text" value="' + (c.appId || "") + '" oninput="updateCardField(' + idx + ', \'appId\', this.value)" /></div>' +
+            '<div class="field"><label>Culoare Card</label><input type="color" value="' + (c.accentColor || "#0d9488") + '" oninput="updateCardColor(' + idx + ', this.value)" /></div>' +
+            '<div class="field"><label>Iconiță</label>' +
+              '<select onchange="updateCardField(' + idx + ', \'iconType\', this.value)">' +
+                ['youtube','netflix','spotify','livetv','hdmi','cast','movie','game','web','star'].map(function(ic) {
+                  return '<option value="' + ic + '"' + (c.iconType === ic ? ' selected' : '') + '>' + ic.toUpperCase() + '</option>';
+                }).join('') +
+              '</select>' +
+            '</div>' +
+          '</div>' +
+          '<div style="display:flex; flex-direction:column; gap:4px;">' +
+            '<button class="btn" style="padding:4px 8px;" onclick="moveCard(' + idx + ', -1)">&uarr;</button>' +
+            '<button class="btn" style="padding:4px 8px;" onclick="moveCard(' + idx + ', 1)">&darr;</button>' +
+            '<button class="btn btn-danger" style="padding:4px 8px;" onclick="deleteCard(' + idx + ')">✖</button>' +
+          '</div>';
+        list.appendChild(row);
+      });
+    }
+
+    function updateCardField(idx, field, val) {
+      currentConfig.cards[idx][field] = val;
+      saveConfigLive();
+    }
+
+    function updateCardColor(idx, hex) {
+      currentConfig.cards[idx].accentColor = hex;
+      currentConfig.cards[idx].iconBg = "linear-gradient(135deg, " + hex + " 0%, #0f172a 100%)";
+      renderCardsEditor();
+      saveConfigLive();
+    }
+
+    function moveCard(idx, dir) {
+      var target = idx + dir;
+      if (target < 0 || target >= currentConfig.cards.length) return;
+      var tmp = currentConfig.cards[idx];
+      currentConfig.cards[idx] = currentConfig.cards[target];
+      currentConfig.cards[target] = tmp;
+      renderCardsEditor();
+      saveConfigLive();
+    }
+
+    function deleteCard(idx) {
+      if (currentConfig.cards.length <= 1) return;
+      currentConfig.cards.splice(idx, 1);
+      renderCardsEditor();
+      saveConfigLive();
+    }
+
+    function addNewCard() {
+      currentConfig.cards.push({
+        key: "custom_" + Date.now(),
+        title: "Card Nou",
+        subtitle: "Scurtătură Personalizată",
+        category: "CUSTOM",
+        heroDesc: "Deschide aplicația personalizată.",
+        appId: "com.webos.app.browser",
+        fallbackIds: ["com.webos.app.browser"],
+        accentColor: "#0d9488",
+        iconBg: "linear-gradient(135deg, #0d9488 0%, #115e59 100%)",
+        iconType: "star"
+      });
+      renderCardsEditor();
+      saveConfigLive();
+    }
+
+    var saveTimer = null;
+    function saveConfigLive() {
+      if (saveTimer) clearTimeout(saveTimer);
+      saveTimer = setTimeout(function () {
+        fetch("/api/config", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(currentConfig)
+        }).then(function () {
+          logMsg("Sincronizat live (PC + Telefon + TV).");
+        }).catch(function () {});
+      }, 180);
+    }
+
+    function applyLiveSyncOnly() {
+      syncFormToConfig();
+      logMsg("Live Sync trimis instant pe TV!");
+    }
+
+    function refreshPreviewIframe() {
+      var iframe = document.getElementById("tvPreviewFrame");
+      iframe.src = iframe.src.split("?")[0] + "?t=" + Date.now();
+    }
+
+    /* ----------------------------------------------------------------------
+       Interactive Screen / Monitor / Window Picker Cast (No Black Screen!)
+       Uses browser's native getDisplayMedia() so user picks exact screen/window
+       and pushes JPEG frames to the server for the TV to display smoothly!
+       ---------------------------------------------------------------------- */
+    function startInteractiveScreenPickerCast() {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getDisplayMedia) {
+        alert("Browserul curent nu suportă selectorul de ecran sau folosește Opțiunea 2 (Server Monitor Cast).");
+        return;
+      }
+      navigator.mediaDevices.getDisplayMedia({
+        video: { width: { ideal: 1280 }, height: { ideal: 720 }, frameRate: { ideal: 12 } },
+        audio: false
+      }).then(function (stream) {
+        if (webrtcStream) {
+          webrtcStream.getTracks().forEach(function (t) { t.stop(); });
+        }
+        webrtcStream = stream;
+        var video = document.getElementById("webrtcCaptureVideo");
+        var canvas = document.getElementById("webrtcCaptureCanvas");
+        var ctx = canvas.getContext("2d");
+        video.srcObject = stream;
+        video.play();
+
+        document.getElementById("pickerCastStatus").textContent = "🟢 Partajare Ecran Activă pe TV!";
+        logMsg("Partajare ecran pornită! Se transmite imaginea selectată către televizor...");
+
+        openCustomHomeOnTv();
+        setTimeout(function () {
+          fetch("/api/tv/event", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              type: "cast_media",
+              mediaType: "screen_mirror",
+              monitorIndex: "browser",
+              title: "Ecran Partajat Live de pe PC"
+            })
+          });
+        }, 500);
+
+        if (webrtcPushTimer) clearInterval(webrtcPushTimer);
+        webrtcPushTimer = setInterval(function () {
+          if (!webrtcStream || !webrtcStream.active) {
+            clearInterval(webrtcPushTimer);
+            document.getElementById("pickerCastStatus").textContent = "";
+            return;
+          }
+          if (video.readyState >= 2) {
+            canvas.width = 1280;
+            canvas.height = 720;
+            ctx.drawImage(video, 0, 0, 1280, 720);
+            canvas.toBlob(function (blob) {
+              if (blob) {
+                fetch("/api/cast/push-frame", {
+                  method: "POST",
+                  headers: { "Content-Type": "image/jpeg" },
+                  body: blob
+                }).catch(function () {});
+              }
+            }, "image/jpeg", 0.72);
+          }
+        }, 120);
+
+        stream.getVideoTracks()[0].addEventListener("ended", function () {
+          stopAllCast();
+        });
+      }).catch(function (err) {
+        logMsg("Selector ecran anulat: " + err.message);
+      });
+    }
+
+    function startServerMonitorCast() {
+      var mon = parseInt(document.getElementById("serverMonitorSelect").value, 10);
+      logMsg("Pornire Cast pentru Monitorul " + mon + " pe TV...");
+      openCustomHomeOnTv();
+      setTimeout(function () {
+        fetch("/api/tv/event", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            type: "cast_media",
+            mediaType: "screen_mirror",
+            monitorIndex: mon,
+            title: "Desktop PC Live (Monitor " + mon + ")"
+          })
+        });
+      }, 600);
+    }
+
+    function switchActiveMonitorLive() {
+      var mon = parseInt(document.getElementById("serverMonitorSelect").value, 10);
+      fetch("/api/tv/event", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type: "cast_control",
+          action: "switch_monitor",
+          value: mon
+        })
+      });
+      logMsg("Comutat live pe Monitorul " + mon + "!");
+    }
+
+    function stopAllCast() {
+      if (webrtcPushTimer) {
+        clearInterval(webrtcPushTimer);
+        webrtcPushTimer = null;
+      }
+      if (webrtcStream) {
+        webrtcStream.getTracks().forEach(function (t) { t.stop(); });
+        webrtcStream = null;
+      }
+      var st = document.getElementById("pickerCastStatus");
+      if (st) st.textContent = "";
+
+      fetch("/api/tv/event", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type: "stop_cast" })
+      });
+      logMsg("Cast oprit pe TV.");
+    }
+
+    function uploadAndCastFile() {
+      var inp = document.getElementById("castFileInput");
+      if (!inp.files || !inp.files.length) {
+        alert("Selectează un fișier video, audio sau o poză!");
+        return;
+      }
+      var file = inp.files[0];
+      logMsg("Se trimite pe TV: " + file.name + "...");
+      var fd = new FormData();
+      fd.append("file", file);
+      fetch("/api/cast/upload", { method: "POST", body: fd })
+        .then(function (r) { return r.json(); })
+        .then(function (res) {
+          logMsg(res.ok ? ("Redare Cast pornită: " + res.title) : ("Eroare: " + res.error));
+        });
+    }
+
+    function castDirectDiskPath() {
+      var pathVal = document.getElementById("directFilePathInput").value.trim();
+      if (!pathVal) return;
+      logMsg("Streaming direct de pe hard disk: " + pathVal);
+      fetch("/api/cast/local-path", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ path: pathVal })
+      })
+      .then(function (r) { return r.json(); })
+      .then(function (res) { logMsg(res.message || res.error || "Trimis!"); });
+    }
+
+    function sendCastControl(action, value) {
+      fetch("/api/tv/event", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type: "cast_control", action: action, value: value })
+      });
+    }
+
+    function uploadCustomWallpaper() {
+      var inp = document.getElementById("wallpaperFileInput");
+      if (!inp.files || !inp.files.length) {
+        alert("Selectează o imagine!");
+        return;
+      }
+      var fd = new FormData();
+      fd.append("file", inp.files[0]);
+      fetch("/api/wallpaper/upload", { method: "POST", body: fd })
+        .then(function (r) { return r.json(); })
+        .then(function (res) {
+          if (res.ok) {
+            currentConfig.custom_wallpaper_url = res.url;
+            saveConfigLive();
+            logMsg("Wallpaper custom aplicat pe TV!");
+          }
+        });
+    }
+
+    function clearCustomWallpaper() {
+      currentConfig.custom_wallpaper_url = "";
+      saveConfigLive();
+      logMsg("S-a revenit la fundalul cu lumini ambientale.");
+    }
+
+    function deployPermanentIpk() {
+      syncFormToConfig();
+      logMsg("Se compilează pachetul .IPK și se instalează pe TV (" + currentConfig.tv_ip + ")...");
+      fetch("/api/tv/deploy", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          tv_ip: currentConfig.tv_ip,
+          tv_passphrase: currentConfig.tv_passphrase
+        })
+      })
+      .then(function (r) { return r.json(); })
+      .then(function (res) {
+        logMsg(res.output || "Deploy finalizat!");
+        refreshPreviewIframe();
+      });
+    }
+
+    function uninstallFromTv() {
+      if (!confirm("Sigur vrei să dezinstalezi Seby TV Home și să revii 100% la meniul original LG?")) return;
+      syncFormToConfig();
+      fetch("/api/tv/uninstall", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          tv_ip: currentConfig.tv_ip,
+          tv_passphrase: currentConfig.tv_passphrase
+        })
+      })
+      .then(function (r) { return r.json(); })
+      .then(function (res) { logMsg(res.output || "Dezinstalat complet!"); });
+    }
+
+    function openCustomHomeOnTv() {
+      syncFormToConfig();
+      fetch("/api/tv/ssh-launch", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ appId: "com.seby.customhome" })
+      })
+      .then(function (r) { return r.json(); })
+      .then(function (res) { logMsg(res.message || "Deschis pe TV!"); });
+    }
+
+    function launchAppFromPc(appId, title) {
+      fetch("/api/tv/ssh-launch", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ appId: appId, title: title })
+      })
+      .then(function (r) { return r.json(); })
+      .then(function (res) { logMsg(res.message || "Comandă trimisă!"); });
+    }
+
+    function sendToastToTv() {
+      var msg = document.getElementById("toastInputMsg").value.trim();
+      if (!msg) return;
+      fetch("/api/tv/event", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type: "toast", message: msg })
+      }).then(function () { logMsg("Notificare trimisă pe TV: " + msg); });
+    }
+
+    function sendRemoteKey(keyName) {
+      fetch("/api/tv/event", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type: "remote_key", key: keyName })
+      });
+    }
+
+    window.addEventListener("DOMContentLoaded", loadInitialConfig);
+  </script>
+</body>
+</html>

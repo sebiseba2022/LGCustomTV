@@ -1,0 +1,23 @@
+{
+  "id": "com.seby.customhome",
+  "version": "1.0.0",
+  "vendor": "Seby Custom UI",
+  "type": "web",
+  "main": "index.html",
+  "title": "Seby TV Home",
+  "icon": "icon.png",
+  "largeIcon": "largeIcon.png",
+  "bgColor": "#07090e",
+  "iconColor": "#111827",
+  "resolution": "1920x1080",
+  "transparent": false,
+  "handlesRelaunch": true,
+  "disableBackHistoryAPI": true,
+  "requiredPermissions": [
+    "application.launcher",
+    "application.operation",
+    "tv.input",
+    "time.query"
+  ]
+}
+

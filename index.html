@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0b2545" />
+  <link rel="manifest" href="seby-tv-home/manifest.webmanifest" />
+  <link rel="icon" type="image/png" href="seby-tv-home/largeIcon.png" />
+  <title>LGCustomTV &bull; Seby TV Studio (PC, Telefon &amp; LG webOS TV)</title>
+  <style>
+    :root {
+      --navy: #0b2545;
+      --teal: #0d9488;
+      --teal-dark: #0f766e;
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --muted: #f1f5f9;
+      --border: #e2e8f0;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --font: "Aptos", "Segoe UI Variable", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      line-height: 1.5;
+    }
+    .navbar {
+      background: var(--navy);
+      color: #fff;
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .nav-brand { display: flex; align-items: center; gap: 0.75rem; font-weight: 800; font-size: 1.2rem; }
+    .nav-badge {
+      width: 38px; height: 38px; border-radius: 0.5rem;
+      background: linear-gradient(135deg, #14b8a6, #0284c7);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .container { max-width: 1200px; margin: 0 auto; padding: 2.5rem 1.5rem; }
+    .hero-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 1.25rem;
+      padding: 2.5rem;
+      box-shadow: 0 10px 25px rgba(11, 37, 69, 0.08);
+      margin-bottom: 2rem;
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 2rem;
+      align-items: center;
+    }
+    @media (max-width: 860px) {
+      .hero-card { grid-template-columns: 1fr; padding: 1.5rem; }
+    }
+    .tag {
+      display: inline-block;
+      padding: 0.3rem 0.75rem;
+      border-radius: 999px;
+      background: #ccfbf1;
+      color: var(--teal-dark);
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      margin-bottom: 0.85rem;
+    }
+    h1 { font-size: 2.2rem; color: var(--navy); line-height: 1.18; margin-bottom: 0.85rem; }
+    .lead { font-size: 1.02rem; color: var(--text-muted); margin-bottom: 1.5rem; }
+    .btn-row { display: flex; flex-wrap: wrap; gap: 0.75rem; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      padding: 0.75rem 1.25rem;
+      border-radius: 0.6rem;
+      border: 1px solid #cbd5e1;
+      background: var(--surface);
+      color: var(--text);
+      font-weight: 700;
+      font-size: 0.92rem;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .btn:hover { background: var(--muted); }
+    .btn-primary { background: var(--teal); border-color: var(--teal); color: #fff; }
+    .btn-primary:hover { background: var(--teal-dark); }
+    .btn-navy { background: var(--navy); border-color: var(--navy); color: #fff; }
+    .btn-navy:hover { background: #133863; }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(310px, 1fr));
+      gap: 1.25rem;
+      margin-bottom: 2rem;
+    }
+    .feature-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 1rem;
+      padding: 1.5rem;
+      box-shadow: 0 2px 8px rgba(11, 37, 69, 0.05);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+    .feature-card h3 { font-size: 1.15rem; color: var(--navy); margin-bottom: 0.4rem; }
+    .feature-card p { font-size: 0.9rem; color: var(--text-muted); }
+
+    .preview-box {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      border-radius: 0.85rem;
+      overflow: hidden;
+      border: 2px solid var(--navy);
+      background: #06080f;
+      position: relative;
+    }
+    .preview-box iframe {
+      width: 1920px;
+      height: 1080px;
+      border: 0;
+      transform-origin: 0 0;
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-brand">
+      <div class="nav-badge">S</div>
+      <span>LGCustomTV &bull; Seby TV Studio</span>
+    </div>
+    <div style="display:flex; gap:0.65rem;">
+      <a class="btn btn-primary" href="seby-tv-home/studio_ui.html">🎨 Deschide Studio Customizer (Web / Telefon)</a>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="hero-card">
+      <div>
+        <span class="tag">PC + TELEFON + LG WEBOS TV &bull; 100% SINCRONIZAT</span>
+        <h1>Custom Home Launcher &amp; Multi-Monitor LAN Cast pentru LG Smart TV</h1>
+        <p class="lead">
+          Personalizează complet interfața televizorului tău LG (culori, rotunjimi carduri, efecte blur, texte flotante, poziționare layout) și fă <strong>Cast la ecrane, filme și poze</strong> de pe calculator sau telefon fără reclame și fără Wi-Fi pe PC.
+        </p>
+        <div class="btn-row">
+          <a class="btn btn-primary" href="seby-tv-home/studio_ui.html">🚀 Deschide Aplicația Studio (PC &amp; Telefon)</a>
+          <a class="btn btn-navy" href="seby-tv-home/com.seby.customhome_1.0.0_all.ipk" download>📦 Descarcă Aplicația TV (.IPK)</a>
+          <a class="btn" href="seby-tv-home/index.html" target="_blank">📺 Vezi Interfața TV Fullscreen</a>
+        </div>
+      </div>
+
+      <div>
+        <div class="preview-box" id="heroPreviewWrap">
+          <iframe id="heroPreviewIframe" src="seby-tv-home/index.html"></iframe>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-3">
+      <div class="feature-card">
+        <div>
+          <h3>💻 1. Aplicația pentru Calculator (Windows)</h3>
+          <p>
+            Include serverul local pentru <strong>Multi-Monitor Screen Mirroring</strong> (alegi ce monitor sau fereastră să trimiți pe TV), streaming filme de pe hard disk și compilare `.IPK` cu 1 click.
+          </p>
+        </div>
+        <div class="btn-row">
+          <a class="btn btn-navy" href="seby-tv-home/Porneste_Seby_TV_Studio.bat" download>📥 Descarcă Lansatorul PC (.BAT)</a>
+          <a class="btn" href="seby-tv-home/seby_tv_studio.py" download>🐍 Server Python (.PY)</a>
+        </div>
+      </div>
+
+      <div class="feature-card">
+        <div>
+          <h3>📱 2. Aplicația pentru Telefon (Android &amp; iOS PWA)</h3>
+          <p>
+            Același Studio rulează sincronizat și pe telefon! Deschide pagina Studio pe telefon (sau conectează-te la `http://192.168.1.247:8765`) și apasă <strong>„Instalează Aplicația / Add to Home Screen”</strong>.
+          </p>
+        </div>
+        <div class="btn-row">
+          <a class="btn btn-primary" href="seby-tv-home/studio_ui.html">📲 Instalează pe Telefon / Web</a>
+        </div>
+      </div>
+
+      <div class="feature-card">
+        <div>
+          <h3>📺 3. Pachetul Oficial LG webOS (.IPK)</h3>
+          <p>
+            Aplicația `com.seby.customhome` pentru televizorul LG (43UM7450PLA / webOS 4.5+), 100% reversibilă în orice secundă la meniul original LG.
+          </p>
+        </div>
+        <div class="btn-row">
+          <a class="btn btn-primary" href="seby-tv-home/com.seby.customhome_1.0.0_all.ipk" download>📦 Descarcă .IPK pentru TV</a>
+          <a class="btn" href="seby-tv-home/deploy_to_tv.py" download>⚡ Script Deploy Direct</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function scaleHeroPreview() {
+      var wrap = document.getElementById("heroPreviewWrap");
+      var iframe = document.getElementById("heroPreviewIframe");
+      if (!wrap || !iframe) return;
+      iframe.style.transform = "scale(" + (wrap.clientWidth / 1920) + ")";
+    }
+    window.addEventListener("resize", scaleHeroPreview);
+    window.addEventListener("DOMContentLoaded", scaleHeroPreview);
+  </script>
+</body>
+</html>

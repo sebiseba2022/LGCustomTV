@@ -756,7 +756,7 @@ class StudioRequestHandler(BaseHTTPRequestHandler):
                 ssh_cmd = '/usr/bin/luna-send-pub -n 1 luna://com.webos.applicationManager/launch \'{"id":"amazon"}\''
             elif btn == "movies":
                 ssh_cmd = '/usr/bin/luna-send-pub -n 1 luna://com.webos.applicationManager/launch \'{"id":"youtube.leanback.v4"}\''
-            elif btn == "guide" or btn == "list":
+            elif btn == "guide" or btn == "list" or btn == "livetv":
                 ssh_cmd = '/usr/bin/luna-send-pub -n 1 luna://com.webos.applicationManager/launch \'{"id":"com.webos.app.livetv"}\''
             elif btn == "input":
                 ssh_cmd = '/usr/bin/luna-send-pub -n 1 luna://com.webos.applicationManager/launch \'{"id":"com.webos.app.hdmi1"}\''
@@ -779,7 +779,7 @@ class StudioRequestHandler(BaseHTTPRequestHandler):
 
             # 3. Dispatch ALL remote buttons through official LG SSAP WebSocket (port 3000)
             #    so EVERY button works everywhere on the TV (even inside YouTube, Netflix, Live TV, HDMI 1/2!)
-            if HAS_WEBSOCKETS and WS_LOOP and btn not in ("home", "settings", "netflix", "prime", "movies", "input", "stb"):
+            if HAS_WEBSOCKETS and WS_LOOP and btn not in ("home", "settings", "netflix", "prime", "movies", "input", "stb", "livetv"):
                 asyncio.run_coroutine_threadsafe(_send_ssap_command_async(tv_ip, btn, cards), WS_LOOP)
 
             self._send_json({"ok": True, "message": f"Comandă executată pe TV: {btn}"})

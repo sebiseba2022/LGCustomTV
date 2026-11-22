@@ -203,7 +203,7 @@
   var castBlobUrl = null;
   var rtcPeer = null;
   var activeMirrorMonitor = 1;
-  var lastEventId = 0;
+  var lastEventId = -1;
   var lastConfigHash = "";
 
   var currentZone = 1;
@@ -483,7 +483,9 @@
                 }
               }
 
-              if (data.events && data.events.length) {
+              if (lastEventId === -1 && data.latest_event_id !== undefined) {
+                lastEventId = data.latest_event_id;
+              } else if (data.events && data.events.length) {
                 for (var i = 0; i < data.events.length; i++) {
                   var ev = data.events[i];
                   if (ev.id > lastEventId) {

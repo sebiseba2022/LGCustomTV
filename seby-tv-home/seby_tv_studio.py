@@ -195,10 +195,11 @@ def push_tv_event(event_dict: dict):
     global NEXT_EVENT_ID
     with EVENT_LOCK:
         event_dict["id"] = NEXT_EVENT_ID
+        event_dict["ts"] = time.time()
         NEXT_EVENT_ID += 1
         TV_EVENTS.append(event_dict)
-        if len(TV_EVENTS) > 50:
-            del TV_EVENTS[:-50]
+        if len(TV_EVENTS) > 20:
+            del TV_EVENTS[:-20]
     # Also broadcast immediately over WebSocket (0ms latency)
     broadcast_ws_text_message({"type": "tv_instant_event", "event": event_dict})
 
@@ -540,12 +541,18 @@ class StudioRequestHandler(BaseHTTPRequestHandler):
         if path == "/api/tv/poll":
             since = int(query.get("since", ["0"])[0])
             cfg = load_config()
+            now_ts = time.time()
             with EVENT_LOCK:
-                pending = [e for e in TV_EVENTS if e["id"] > since]
+                if since < 0:
+                    pending = []
+                else:
+                    # Only deliver events created in the last 3 seconds! Never replay stale button presses!
+                    pending = [e for e in TV_EVENTS if e["id"] > since and (now_ts - e.get("ts", 0)) < 3.0]
             self._send_json({
                 "config_hash": get_config_hash(cfg),
                 "config": cfg,
                 "events": pending,
+                "latest_event_id": NEXT_EVENT_ID - 1,
                 "pc_stats": get_pc_quick_stats()
             })
             return

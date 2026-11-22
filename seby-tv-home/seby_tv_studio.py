@@ -85,6 +85,10 @@ async def _ws_cast_handler(websocket):
                             dead.append(peer)
                 for d in dead:
                     WS_VIEWERS.discard(d)
+    except Exception:
+        pass
+    finally:
+        WS_VIEWERS.discard(websocket)
 
 
 def broadcast_ws_text_message(payload_dict: dict):
@@ -107,10 +111,6 @@ def broadcast_ws_text_message(payload_dict: dict):
         asyncio.run_coroutine_threadsafe(_send_all(), WS_LOOP)
     except Exception:
         pass
-    except Exception:
-        pass
-    finally:
-        WS_VIEWERS.discard(websocket)
 
 
 def start_websocket_cast_server(ws_port: int = 8766):
